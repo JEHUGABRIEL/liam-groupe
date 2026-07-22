@@ -1,7 +1,7 @@
 "use client";
 import { useState, useMemo, useEffect } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { Link } from "next/link";
+import { Link } from "../lib/navLink";
 import {
   LayoutGrid,
   HeartHandshake,
@@ -16,8 +16,6 @@ import {
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useLangPath } from "../lib/langPath";
-import Navbar from "../components/Navbar";
-import Footer from "../components/Footer";
 import SectionHeading from "../components/SectionHeading";
 import DomainCard from "../components/DomainCard";
 import EventCard from "../components/EventCard";
@@ -84,7 +82,6 @@ export default function Home() {
 
   return (
     <div className="font-body">
-      <Navbar />
 
       
       <HeroSlider
@@ -446,7 +443,6 @@ export default function Home() {
         </div>
       </section>
 
-      <Footer />
     </div>
   );
 }

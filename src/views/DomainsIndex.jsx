@@ -1,8 +1,6 @@
 "use client";
 import { LayoutGrid } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import Navbar from "../components/Navbar";
-import Footer from "../components/Footer";
 import SectionHeading from "../components/SectionHeading";
 import DomainCard from "../components/DomainCard";
 import HeroSlider from "../components/HeroSlider";
@@ -17,7 +15,6 @@ export default function DomainsIndex() {
 
   return (
     <div className="font-body">
-      <Navbar />
 
       
       <HeroSlider
@@ -60,7 +57,6 @@ export default function DomainsIndex() {
           </div>
         </div>
       </section>
-      <Footer />
     </div>
   );
 }

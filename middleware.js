@@ -32,6 +32,6 @@ export function middleware(request) {
 export const config = {
   matcher: [
     // Skip all internal paths (_next, images, favicon, etc.)
-    "/((?!_next|images|favicon\\.png|sitemap\\.xml|robots\\.txt).*)",
+    "/((?!_next|images|favicon\\.png|favicon\\.ico|sitemap\\.xml|robots\\.txt).*)",
   ],
 };

@@ -2,8 +2,6 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { supabase } from "../lib/supabase.js";
-import Navbar from "../components/Navbar";
-import Footer from "../components/Footer";
 import EventCard from "../components/EventCard";
 import HeroSlider from "../components/HeroSlider";
 import ContactModal from "../components/ContactModal";
@@ -27,7 +25,6 @@ export default function Events() {
 
   return (
     <div className="font-body">
-      <Navbar />
 
       
       <HeroSlider
@@ -130,7 +127,6 @@ export default function Events() {
         }}
       />
 
-      <Footer />
     </div>
   );
 }

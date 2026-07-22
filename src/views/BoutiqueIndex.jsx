@@ -2,9 +2,7 @@
 import { useState } from "react";
 import { ShoppingBag } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { Link } from "next/link";
-import Navbar from "../components/Navbar";
-import Footer from "../components/Footer";
+import { Link } from "../lib/navLink";
 import SectionHeading from "../components/SectionHeading";
 import ProductCard from "../components/ProductCard";
 import HeroSlider from "../components/HeroSlider";
@@ -26,7 +24,6 @@ export default function BoutiqueIndex() {
 
   return (
     <div className="font-body">
-      <Navbar />
 
       
       <HeroSlider
@@ -110,7 +107,6 @@ export default function BoutiqueIndex() {
         </div>
       </section>
 
-      <Footer />
     </div>
   );
 }

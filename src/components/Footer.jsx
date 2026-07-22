@@ -1,14 +1,19 @@
 "use client";
-import Link from "next/link";
+import { Link } from "../lib/navLink";
 import { NavLink } from "../lib/navLink";
 import { Send, MessageSquare, Phone, MapPin, Mail, Clock, ExternalLink } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useLangPath } from "../lib/langPath";
+import { usePathname } from "next/navigation";
 import { FacebookIcon, InstagramIcon, XIcon, YoutubeIcon } from "./SocialIcons";
 import { useSiteInfo, useFooterLinks } from "../hooks/useSiteData";
 import useScrollReveal from "../hooks/useScrollReveal";
 
 export default function Footer({ hideCTA = false }) {
+  const pathname = usePathname();
+  // Désactiver la CTA sur certaines routes (domaines, etc.)
+  const noCtaRoutes = /^\/(fr|en)\/domaines\//;
+  const shouldHideCTA = hideCTA || noCtaRoutes.test(pathname);
   const { t } = useTranslation();
   const p = useLangPath();
   const { data: siteInfo = {} } = useSiteInfo();
@@ -28,7 +33,7 @@ export default function Footer({ hideCTA = false }) {
 
   return (
     <>
-      {!hideCTA && (
+      {!shouldHideCTA && (
         <section className="relative bg-brand-500 py-16 px-6 overflow-hidden" ref={ctaRef}>
           <div className="absolute inset-0 pointer-events-none opacity-10">
             <svg className="w-full h-full" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">

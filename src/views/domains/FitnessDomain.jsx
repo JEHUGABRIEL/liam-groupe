@@ -1,12 +1,10 @@
 "use client";
 import { useState, useMemo, useEffect } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { Link } from "next/link";
+import { Link } from "../../lib/navLink";
 import { ImageOff, ImageIcon, Calendar, Check, Dumbbell, ArrowRight, UserPlus, Send, Loader2, Smartphone, CreditCard, X, ShoppingBag } from "lucide-react";
 import { FacebookIcon, InstagramIcon, XIcon } from "../../components/SocialIcons";
 import { useTranslation } from "react-i18next";
-import Navbar from "../../components/Navbar";
-import Footer from "../../components/Footer";
 import EventCard from "../../components/EventCard";
 import ProductCard from "../../components/ProductCard";
 import SafeImg from "../../components/SafeImg";
@@ -151,7 +149,6 @@ export default function FitnessDomain({ domain, events }) {
 
   return (
     <div className="font-body bg-white">
-      <Navbar />
 
       <HeroSlider
         slides={gymSlides}
@@ -826,7 +823,6 @@ export default function FitnessDomain({ domain, events }) {
         </div>
       )}
 
-      <Footer hideCTA />
     </div>
   );
 }

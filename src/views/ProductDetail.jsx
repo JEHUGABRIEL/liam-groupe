@@ -1,11 +1,9 @@
 "use client";
-import Link from "next/link"
+import { Link } from "../lib/navLink"
 import { useParams, useRouter } from "next/navigation";
 import { useTranslation } from "react-i18next";
 import { useLang, langPath } from "../lib/langPath";
 import { ArrowLeft, ShoppingBag, Tag, ImageOff, MessageSquare, Plus } from "lucide-react";
-import Navbar from "../components/Navbar";
-import Footer from "../components/Footer";
 import ProductCard from "../components/ProductCard";
 import SafeImg from "../components/SafeImg";
 import { products as staticProducts } from "../data/siteData";
@@ -40,7 +38,6 @@ export default function ProductDetail() {
 
   return (
     <div className="font-body">
-      <Navbar transparentOnTop={false} />
 
       <div className="pt-[120px] pb-6 px-6">
         <div className="max-w-5xl mx-auto">
@@ -171,7 +168,6 @@ export default function ProductDetail() {
         </section>
       )}
 
-      <Footer />
     </div>
   );
 }

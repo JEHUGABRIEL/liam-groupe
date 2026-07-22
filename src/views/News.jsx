@@ -1,7 +1,5 @@
 "use client";
 import { useTranslation } from "react-i18next";
-import Navbar from "../components/Navbar";
-import Footer from "../components/Footer";
 import NewsCard from "../components/NewsCard";
 import HeroSlider from "../components/HeroSlider";
 import { useNews } from "../hooks/useSiteData";
@@ -15,7 +13,6 @@ export default function News_() {
 
   return (
     <div className="font-body">
-      <Navbar />
 
       
       <HeroSlider
@@ -73,7 +70,6 @@ export default function News_() {
         </div>
       </section>
 
-      <Footer />
     </div>
   );
 }

@@ -1,6 +1,6 @@
 "use client";
 import { useTranslation } from "react-i18next";
-import { Link } from "next/link";
+import { Link } from "../lib/navLink";
 import { ShoppingBag, ImageOff } from "lucide-react";
 import SafeImg from "./SafeImg";
 import { useCart } from "../lib/cartContext";

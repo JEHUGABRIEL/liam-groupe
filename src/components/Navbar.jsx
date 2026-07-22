@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState, useRef } from "react";
-import Link from "next/link";
+import { Link } from "../lib/navLink";
 import { useParams, usePathname, useRouter } from "next/navigation";
 import { NavLink } from "../lib/navLink";
 import { ChevronDown, Globe, X, ArrowUpRight, Home, Info, LayoutGrid, Calendar, Newspaper, Phone, ShoppingBag } from "lucide-react";
@@ -12,11 +12,28 @@ import { langPath } from "../lib/langPath";
 import { DomainIcon } from "./DomainIcon";
 import ContactModal from "./ContactModal";
 import { useCart } from "../lib/cartContext";
+import { useNavbarContext } from "../lib/navbarContext";
 
 
-export default function Navbar({ transparentOnTop = true, topOffset = 0 }) {
-  const [scrolled, setScrolled] = useState(() =>
-    transparentOnTop ? typeof window !== "undefined" && window.scrollY > 40 : true
+function isRouteWithTransparent(pathname) {
+  const path = pathname.replace(/^\/[a-z]{2}/, "") || "/";
+  const transparentRoutes = ["/", "/a-propos", "/actualites", "/evenements", "/domaines", "/boutique"];
+  if (transparentRoutes.includes(path)) return true;
+  if (path.startsWith("/domaines/")) return true;
+  if (path.startsWith("/actualites/")) return false;
+  if (path.startsWith("/boutique/")) return false;
+  if (path === "/mentions-legales") return false;
+  if (path === "/politique-confidentialite") return false;
+  return false;
+}
+
+export default function Navbar({ transparentOnTop: explicitTransparent, topOffset: propTopOffset }) {
+  const { topOffset: contextTopOffset } = useNavbarContext();
+  const pathname = usePathname();
+  const transparentOnTop = explicitTransparent !== undefined ? explicitTransparent : isRouteWithTransparent(pathname);
+  const topOffset = propTopOffset !== undefined ? propTopOffset : contextTopOffset;
+  const [scrolled, setScrolled] = useState(
+    () => transparentOnTop ? typeof window !== "undefined" && window.scrollY > 40 : true
   );
   const [shrunk, setShrunk] = useState(() =>
     typeof window !== "undefined" && window.scrollY > 200
@@ -25,7 +42,6 @@ export default function Navbar({ transparentOnTop = true, topOffset = 0 }) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [langOpen, setLangOpen] = useState(false);
   const [contactOpen, setContactOpen] = useState(false);
-  const pathname = usePathname();
   const { data: events = [] } = useEvents();
   const closeTimer = useRef(null);
   const langTimer = useRef(null);
@@ -281,7 +297,7 @@ export default function Navbar({ transparentOnTop = true, topOffset = 0 }) {
           
           <div className="hidden lg:flex items-center gap-5">
             
-            <CartNavButton />
+            <CartNavButton isTransparent={isTransparent} />
 
             
             <div
@@ -386,7 +402,7 @@ export default function Navbar({ transparentOnTop = true, topOffset = 0 }) {
 
           
           
-          <MobileCartButton />
+          <MobileCartButton isTransparent={isTransparent} />
 
           <button
             className={`lg:hidden relative z-50 w-11 h-11 flex items-center justify-center rounded-xl transition-colors ${
@@ -695,13 +711,17 @@ export default function Navbar({ transparentOnTop = true, topOffset = 0 }) {
 }
 
 
-function CartNavButton() {
+function CartNavButton({ isTransparent }) {
   const { totalItems, openCart } = useCart();
   return (
     <button
       type="button"
       onClick={openCart}
-      className="relative w-9 h-9 flex items-center justify-center rounded-xl text-gray-500 hover:text-brand-600 hover:bg-brand-50 transition-all duration-200"
+      className={`relative w-9 h-9 flex items-center justify-center rounded-xl transition-all duration-200 ${
+        isTransparent
+          ? "text-white/85 hover:text-white hover:bg-white/10"
+          : "text-gray-500 hover:text-brand-600 hover:bg-brand-50"
+      }`}
       aria-label="Panier"
     >
       <ShoppingBag className="w-5 h-5" />
@@ -714,16 +734,18 @@ function CartNavButton() {
   );
 }
 
-function MobileCartButton() {
+function MobileCartButton({ isTransparent }) {
   const { totalItems, openCart } = useCart();
   return (
     <button
       type="button"
       onClick={openCart}
-      className="lg:hidden relative w-11 h-11 flex items-center justify-center rounded-xl hover:bg-black/5 transition-colors"
+      className={`lg:hidden relative w-11 h-11 flex items-center justify-center rounded-xl transition-colors ${
+        isTransparent ? "text-white/85 hover:text-white hover:bg-white/10" : "text-gray-700 hover:bg-black/5"
+      }`}
       aria-label="Panier"
     >
-      <ShoppingBag className="w-5 h-5 text-gray-700" />
+      <ShoppingBag className="w-5 h-5" />
       {totalItems > 0 && (
         <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] rounded-full bg-brand-500 text-white text-[0.55rem] font-bold flex items-center justify-center px-[3px] shadow-sm">
           {totalItems > 99 ? "99+" : totalItems}

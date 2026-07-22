@@ -1,4 +1,5 @@
 import { Suspense } from "react";
+import QueryProvider from "../lib/QueryProvider";
 import { CartProvider } from "../lib/cartContext";
 import { I18nProvider } from "../lib/i18nProvider";
 import CartDrawer from "../components/CartDrawer";
@@ -54,15 +55,17 @@ export default function RootLayout({ children }) {
         />
       </head>
       <body className="font-body">
-        <I18nProvider>
-          <CartProvider>
-            <Suspense fallback={null}>
-              {children}
-            </Suspense>
-            <CartDrawer />
-            <ChatBot />
-          </CartProvider>
-        </I18nProvider>
+        <QueryProvider>
+          <I18nProvider>
+            <CartProvider>
+              <Suspense fallback={null}>
+                {children}
+              </Suspense>
+              <CartDrawer />
+              <ChatBot />
+            </CartProvider>
+          </I18nProvider>
+        </QueryProvider>
       </body>
     </html>
   );

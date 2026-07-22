@@ -1,8 +1,6 @@
 "use client";
 import { useTranslation } from "react-i18next";
 import { ShieldCheck } from "lucide-react";
-import Navbar from "../components/Navbar";
-import Footer from "../components/Footer";
 import SectionHeading from "../components/SectionHeading";
 import { useSiteInfo } from "../hooks/useSiteData";
 import useScrollReveal from "../hooks/useScrollReveal";
@@ -16,7 +14,6 @@ export default function PolitiqueConfidentialite() {
 
   return (
     <div className="font-body">
-      <Navbar transparentOnTop={false} />
 
       <section className="pt-[140px] pb-16 px-6" ref={sectionRef}>
         <div className="max-w-3xl mx-auto">
@@ -41,7 +38,6 @@ export default function PolitiqueConfidentialite() {
         </div>
       </section>
 
-      <Footer />
     </div>
   );
 }

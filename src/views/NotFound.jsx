@@ -1,5 +1,5 @@
 "use client";
-import { Link } from "next/link";
+import { Link } from "../lib/navLink";
 import { useTranslation } from "react-i18next";
 import { useLangPath } from "../lib/langPath";
 import { Home, ArrowLeft, Compass } from "lucide-react";

@@ -224,11 +224,6 @@
     "stats": {
       "items": [
         {
-          "value": "11",
-          "suffix": "+",
-          "label": "Années d'engagement (depuis 2015)"
-        },
-        {
           "value": "120",
           "suffix": "+",
           "label": "Événements organisés"

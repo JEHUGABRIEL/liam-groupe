@@ -1,11 +1,9 @@
 "use client";
-import Link from "next/link"
+import { Link } from "../lib/navLink"
 import { useParams, useRouter } from "next/navigation";
 import { useTranslation } from "react-i18next";
 import { useLang, langPath } from "../lib/langPath";
 import { ArrowLeft, CalendarDays, User, ImageOff } from "lucide-react";
-import Navbar from "../components/Navbar";
-import Footer from "../components/Footer";
 import NewsCard from "../components/NewsCard";
 import SafeImg from "../components/SafeImg";
 import { FacebookIcon, XIcon } from "../components/SocialIcons";
@@ -39,7 +37,6 @@ export default function NewsArticle() {
 
   return (
     <div className="font-body">
-      <Navbar transparentOnTop={false} />
 
       <div className="pt-[120px] pb-6 px-6">
         <div className="max-w-3xl mx-auto">
@@ -145,7 +142,6 @@ export default function NewsArticle() {
         </section>
       )}
 
-      <Footer />
     </div>
   );
 }

@@ -3,8 +3,6 @@ import { useState, useMemo, useEffect } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Layers, Image as ImageIcon, Calendar, ChevronLeft, ChevronRight } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import Navbar from "../../components/Navbar";
-import Footer from "../../components/Footer";
 import SectionHeading from "../../components/SectionHeading";
 import EventCard from "../../components/EventCard";
 import HeroSlider from "../../components/HeroSlider";
@@ -74,7 +72,6 @@ export default function GenericDomain({ domain, events }) {
 
   return (
     <div className="font-body">
-      <Navbar />
 
       <HeroSlider
         slides={domainSlides}
@@ -236,7 +233,6 @@ export default function GenericDomain({ domain, events }) {
         <ActCTA title={`${t('domain.cta.support')} ${t(`domains.data.${domain.slug}.name`, domain.name)}`} />
       )}
 
-      <Footer />
     </div>
   );
 }

@@ -11,12 +11,12 @@ export default {
       colors: {
         
         brand: {
-          50: "#FDEAE9",
-          100: "#FAD0CD",
-          400: "#DE4A3E",
-          500: "#CE1126",
-          600: "#A80E1F",
-          700: "#7D0A17",
+          50: "#FDE8E8",
+          100: "#F8D0D0",
+          400: "#C94D4D",
+          500: "#B32020",
+          600: "#8F1A1A",
+          700: "#6B1313",
         },
         
         violet: {
@@ -66,7 +66,7 @@ export default {
       boxShadow: {
         card: "0 10px 30px -12px rgba(10,10,10,0.15)",
         "card-hover": "0 20px 50px -16px rgba(10,10,10,0.25)",
-        "hero": "0 30px 80px rgba(206,17,38,0.15)",
+        "hero": "0 30px 80px rgba(179,32,32,0.15)",
       },
       animation: {
         "fade-in": "fadeIn 0.6s ease-out forwards",

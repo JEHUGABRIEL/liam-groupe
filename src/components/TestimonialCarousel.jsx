@@ -53,13 +53,14 @@ export default function TestimonialCarousel() {
 
   
   const [isPaused, setIsPaused] = useState(false);
-  const AUTO_INTERVAL = 5000;
+  const AUTO_INTERVAL = 4000;
 
+  // Auto-play : toujours actif même avec peu de témoignages (qui se répètent dans extended)
   useEffect(() => {
-    if (isPaused || testimonials.length <= itemsPerPage) return;
+    if (isPaused || testimonials.length === 0) return;
     const id = setInterval(() => goTo(page + 1), AUTO_INTERVAL);
     return () => clearInterval(id);
-  }, [page, isPaused, testimonials.length, itemsPerPage, goTo]);
+  }, [page, isPaused, testimonials.length, goTo]);
 
   
   const pause = () => setIsPaused(true);
@@ -158,6 +159,23 @@ export default function TestimonialCarousel() {
         )}
       </div>
 
+      {/* Pagination dots */}
+      {testimonials.length > itemsPerPage && (
+        <div className="flex items-center justify-center gap-2 mt-8">
+          {Array.from({ length: totalPages }).map((_, dotIdx) => (
+            <button
+              key={dotIdx}
+              onClick={() => goTo(dotIdx)}
+              aria-label={`Page ${dotIdx + 1}`}
+              className={`h-2 rounded-full transition-all duration-500 ${
+                dotIdx === page
+                  ? "w-6 bg-brand-500"
+                  : "w-2 bg-gray-300 hover:bg-gray-400"
+              }`}
+            />
+          ))}
+        </div>
+      )}
     </div>
   );
 }

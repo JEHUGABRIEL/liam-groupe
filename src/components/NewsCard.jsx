@@ -1,6 +1,6 @@
 "use client";
 import { useTranslation } from "react-i18next";
-import { Link } from "next/link";
+import { Link } from "../lib/navLink";
 import { ArrowRight, ImageOff } from "lucide-react";
 import { useLangPath } from "../lib/langPath";
 import SafeImg from "./SafeImg";

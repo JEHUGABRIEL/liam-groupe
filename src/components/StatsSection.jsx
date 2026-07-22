@@ -19,8 +19,7 @@ export default function StatsSection() {
             "radial-gradient(circle at 20% 20%, rgba(226,27,34,0.25), transparent 55%), radial-gradient(circle at 85% 75%, rgba(226,27,34,0.15), transparent 55%)",
         }}
       />
-      <div className="relative max-w-7xl mx-auto">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-8 stagger-children">
+      <div className="relative max-w-7xl mx-auto">          <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 max-w-3xl mx-auto stagger-children">
           {list.map((item, i) => (
             <div key={i} className="reveal text-center">
               <Counter value={item.value} suffix={item.suffix} />

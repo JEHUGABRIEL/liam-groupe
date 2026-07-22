@@ -1,8 +1,9 @@
 "use client";
+
 import NextLink from "next/link";
 import { usePathname } from "next/navigation";
 
-// Simple NavLink replacement for Next.js App Router
+// NavLink replacement for Next.js App Router - accepts `to` prop like react-router-dom
 export function NavLink({ to, children, className, end, onClick, onMouseEnter, ...props }) {
   const pathname = usePathname();
   const isActive = end
@@ -24,4 +25,11 @@ export function NavLink({ to, children, className, end, onClick, onMouseEnter, .
   );
 }
 
-export { NextLink as Link };
+// Link wrapper that converts `to` prop (react-router-dom style) to `href` (Next.js style)
+export function Link({ to, href, children, ...props }) {
+  return (
+    <NextLink href={to || href} {...props}>
+      {children}
+    </NextLink>
+  );
+}

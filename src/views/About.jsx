@@ -3,8 +3,6 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Target, Compass, MapPin, Phone, Mail, Clock, Send, Quote } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import Navbar from "../components/Navbar";
-import Footer from "../components/Footer";
 import SectionHeading from "../components/SectionHeading";
 import HeroSlider from "../components/HeroSlider";
 import { FacebookIcon, InstagramIcon, XIcon, YoutubeIcon } from "../components/SocialIcons";
@@ -43,7 +41,6 @@ export default function About() {
 
   return (
     <div className="font-body">
-      <Navbar />
 
       
       <HeroSlider
@@ -371,7 +368,6 @@ export default function About() {
         </div>
       </section>
 
-      <Footer />
     </div>
   );
 }

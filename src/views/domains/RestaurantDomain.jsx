@@ -3,8 +3,7 @@ import { useState, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { MapPin, Clock, Phone, ImageOff, Calendar, X, Mic, Trophy, ShoppingCart, Star, User, Quote, MessageSquare, UserPlus, ChevronLeft, ChevronRight, ImageIcon } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import Navbar from "../../components/Navbar";
-import Footer from "../../components/Footer";
+import { useNavbarContext } from "../../lib/navbarContext";
 import EventCard from "../../components/EventCard";
 import GalleryLightbox from "../../components/GalleryLightbox";
 import SafeImg from "../../components/SafeImg";
@@ -34,6 +33,13 @@ export default function RestaurantDomain({ domain, events }) {
   const [galleryImageIdx, setGalleryImageIdx] = useState(0);
   const [galleryPaused, setGalleryPaused] = useState(false);
   const { addItem: addToCart, openCart } = useCart();
+  const { setTopOffset } = useNavbarContext();
+
+  
+  useEffect(() => {
+    setTopOffset(bannerVisible ? 44 : 0);
+    return () => setTopOffset(0);
+  }, [bannerVisible, setTopOffset]);
 
   
   useEffect(() => {
@@ -197,8 +203,6 @@ export default function RestaurantDomain({ domain, events }) {
 
       
       {bannerVisible && <div className="h-[44px] bg-brand-500" />}
-
-      <Navbar topOffset={bannerVisible ? 44 : 0} />
 
       <HeroSlider
         slides={ogabSlides}
@@ -842,7 +846,6 @@ export default function RestaurantDomain({ domain, events }) {
         </div>
       </section>
 
-      <Footer hideCTA />
     </div>
   );
 }
