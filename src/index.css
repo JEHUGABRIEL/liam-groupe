@@ -1,0 +1,152 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: "Oswald", ui-sans-serif, sans-serif;
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  color: #10202E;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4, .font-heading {
+  font-family: "Fraunces", ui-serif, Georgia, serif;
+  letter-spacing: -0.01em;
+}
+
+::selection {
+  background-color: #FFECB3;
+}
+
+/* Hide scrollbar for testimonial / gallery carousels if needed */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* ====== SCROLL REVEAL ANIMATIONS ====== */
+
+/* Classes de base — invisibles par défaut, animées quand la classe est ajoutée */
+.reveal {
+  opacity: 0;
+}
+
+.reveal.animate-fade-in,
+.reveal.animate-fade-up,
+.reveal.animate-fade-down,
+.reveal.animate-fade-left,
+.reveal.animate-fade-right,
+.reveal.animate-scale-in,
+.reveal.animate-slide-up,
+.reveal.animate-zoom-in,
+.reveal.animate-blur-in,
+.reveal.animate-reveal-strong {
+  opacity: 1;
+}
+
+/* Animation delays — utilitaires Tailwind personnalisés */
+.delay-100 { animation-delay: 0.1s; }
+.delay-150 { animation-delay: 0.15s; }
+.delay-200 { animation-delay: 0.2s; }
+.delay-300 { animation-delay: 0.3s; }
+.delay-400 { animation-delay: 0.4s; }
+.delay-500 { animation-delay: 0.5s; }
+.delay-600 { animation-delay: 0.6s; }
+.delay-700 { animation-delay: 0.7s; }
+.delay-800 { animation-delay: 0.8s; }
+
+/* Hover card lift — utilisé sur les cartes */
+.hover\:lift {
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+              box-shadow 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.hover\:lift:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 20px 50px -16px rgba(19,0,37,0.25);
+}
+
+/* Image zoom subtle on hover */
+.hover\:img-zoom img {
+  transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.hover\:img-zoom:hover img {
+  transform: scale(1.05);
+}
+
+/* Hero image blur placeholder — fond flou qui disparaît au chargement */
+.hero-blur-bg {
+  background-size: cover;
+  background-position: center;
+  filter: blur(20px);
+  transform: scale(1.1);
+  transition: opacity 0.8s ease-out;
+}
+
+/* Pulse simplifié pour les états de chargement */
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+.animate-shimmer {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+}
+
+/* Stagger animation pour les grilles — appliqué via du JS ou des classes */
+.stagger-children > .reveal:nth-child(1) { animation-delay: 0.05s; }
+.stagger-children > .reveal:nth-child(2) { animation-delay: 0.1s; }
+.stagger-children > .reveal:nth-child(3) { animation-delay: 0.15s; }
+.stagger-children > .reveal:nth-child(4) { animation-delay: 0.2s; }
+.stagger-children > .reveal:nth-child(5) { animation-delay: 0.25s; }
+.stagger-children > .reveal:nth-child(6) { animation-delay: 0.3s; }
+.stagger-children > .reveal:nth-child(7) { animation-delay: 0.35s; }
+.stagger-children > .reveal:nth-child(8) { animation-delay: 0.4s; }
+.stagger-children > .reveal:nth-child(9) { animation-delay: 0.45s; }
+.stagger-children > .reveal:nth-child(10) { animation-delay: 0.5s; }
+.stagger-children > .reveal:nth-child(11) { animation-delay: 0.55s; }
+.stagger-children > .reveal:nth-child(12) { animation-delay: 0.6s; }
+
+/* Infinite scroll animation for partner logos */
+@keyframes scroll {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-scroll {
+  animation: scroll 30s linear infinite;
+  width: fit-content;
+}
+
+/* ErrorBoundary fade-in */
+@keyframes eb-fade-in {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.eb-fade-in {
+  animation: eb-fade-in 0.5s ease-out;
+}
+
+/* Staggered pulse pour les dots du GlobalLoader */
+@keyframes pulse-stagger {
+  0%, 100% { opacity: 0.2; transform: scale(1); }
+  50% { opacity: 0.6; transform: scale(1.2); }
+}
+.animate-pulse-stagger {
+  animation: pulse-stagger 1.5s ease-in-out infinite;
+}
+.stagger-1 { animation-delay: 0s; }
+.stagger-2 { animation-delay: 0.3s; }
+.stagger-3 { animation-delay: 0.6s; }

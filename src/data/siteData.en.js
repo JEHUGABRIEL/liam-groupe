@@ -1,0 +1,837 @@
+
+
+
+const CLOUD_NAME = 'dwmrzp61c'
+const BASE_URL = `https://res.cloudinary.com/${CLOUD_NAME}/image/upload`
+
+export const img = (seed, w = 800, h = 600, fit = 'fill', quality = 'auto') =>
+  `${BASE_URL}/f_auto,q_${quality},w_${w},h_${h},c_${fit},dpr_auto/v1/liam-groupe/${seed}`
+
+export const imgBlur = (seed) =>
+  `${BASE_URL}/f_auto,q_10,w_200,h_112,c_fill,e_blur:500,dpr_auto/v1/liam-groupe/${seed}`
+
+export const imgHero = (seed) => img(seed, 1600, 900, 'fill', 'auto')
+
+export const imgSrcSet = (seed, widths = [480, 768, 1024, 1280, 1600], h = 600, fit = 'fill') =>
+  widths
+    .map(w => `${BASE_URL}/f_auto,q_auto,w_${w},h_${h},c_${fit},dpr_auto/v1/liam-groupe/${seed} ${w}w`)
+    .join(', ')
+
+export const imgSizes = (type = 'full') => {
+  const sizes = {
+    full: '(max-width: 640px) 100vw, (max-width: 1024px) 100vw, 100vw',
+    half: '(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 50vw',
+    third: '(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw',
+  }
+  return sizes[type] || sizes.full
+}
+
+export const siteInfo = {
+  name: "LIAM",
+  fullName: "LIAM Groupe",
+  tagline: "Revealing talents, creating sustainable opportunities",
+  description:
+    "A multidisciplinary organization developing cultural, sports, entrepreneurial, and culinary projects with strong social impact in the Central African Republic.",
+  address: ["Rue Maurice Dejean, Hôtel Levy's Building", "Bangui, Central African Republic"],
+  phones: ["+236 76 03 03 03", "+236 74 68 28 28"],
+  emails: ["liamgroupe236@gmail.com"],
+  hours: ["Monday — Friday: 8:00 AM — 5:00 PM", "Saturday: 9:00 AM — 1:00 PM"],
+  foundingYear: 2015,
+  social: {
+    whatsapp: "23676000000",
+    facebook: "https://www.facebook.com/people/LIAM-Groupe/61585885973346/",
+    instagram: "https://instagram.com/liamgroupe",
+    x: "https://x.com/liamgroupe",
+    youtube: "https://youtube.com/@liamgroupe",
+  },
+  contactPage: {
+    address: ["Rue Maurice Dejean, Hôtel Levy's Building", "Bangui, Central African Republic"],
+    phones: ["+236 76 03 03 03", "+236 74 68 28 28"],
+    emails: ["liamgroupe236@gmail.com"],
+    hours: ["Monday — Friday: 8:00 AM — 5:00 PM", "Saturday: 9:00 AM — 12:00 PM"],
+  },
+};
+
+export const navLinks = [
+  { label: "Home", to: "/" },
+  { label: "About", to: "/a-propos" },
+  { label: "Domains", to: "/domaines", dropdown: true },
+  { label: "Shop", to: "/boutique" },
+  { label: "Events", to: "/evenements" },
+  { label: "News", to: "/actualites" },
+];
+
+export const domains = [
+  {
+    slug: "g-fitness",
+    name: "G-Fitness",
+    category: "SPORTS & FITNESS",
+    icon: "dumbbell",
+    shortDescription:
+      "A modern fitness gym in the heart of Bangui: group classes, personal coaching and strength training, open to everyone, with dedicated programs for women and youth. Full facility, certified coaches…",
+    heroImage: img("gfitness-hero", 1920, 700),
+    cardImage: img("gfitness-hero", 800, 500),
+    programs: [
+      {
+        title: "Strength & Cardio Training",
+        description:
+          "Fully equipped floor (free weights, guided machines, treadmills, bikes) with coach supervision.",
+      },
+      {
+        title: "Group Classes",
+        description:
+          "Zumba, step, strength training and yoga, several sessions a week for all levels.",
+      },
+      {
+        title: "Personal Coaching",
+        description:
+          "Individual programs (weight loss, muscle gain, fitness recovery) with nutritional follow-up.",
+      },
+      {
+        title: "Women's Basketball Tournament",
+        description:
+          "Inter-district competition bringing together 16 women's teams in Bangui, run by our coaches.",
+      },
+      {
+        title: "G-Fitness Junior",
+        description:
+          "Sports initiation program for children and teens from underserved neighborhoods.",
+      },
+      {
+        title: "Health through Sports",
+        description:
+          "Workshops raising awareness about healthy lifestyles and balanced nutrition.",
+      },
+      {
+        title: "Saturday Hikes",
+        description:
+          "Group walks through the hills of Bangui and surrounding areas. Open to all fitness levels, a friendly way to discover Central African nature.",
+      },
+    ],
+    trainers: [
+      {
+        name: "Coach Sandra Mbeki",
+        specialty: "Strength training & Zumba",
+        image: img("gfitness-trainer-1", 400, 400),
+      },
+      {
+        name: "Coach Aristide Ngoma",
+        specialty: "Strength training & conditioning",
+        image: img("gfitness-trainer-2", 400, 400),
+      },
+      {
+        name: "Coach Divine Yakité",
+        specialty: "Yoga & wellness",
+        image: img("gfitness-trainer-3", 400, 400),
+      },
+    ],
+    schedule: [
+      { day: "Monday", classes: [{ time: "6:30 AM", name: "Cardio Training" }, { time: "6:00 PM", name: "Zumba" }] },
+      { day: "Tuesday", classes: [{ time: "7:00 AM", name: "Guided Strength" }, { time: "6:30 PM", name: "Strength Training" }] },
+      { day: "Wednesday", classes: [{ time: "6:30 AM", name: "Cardio Training" }, { time: "5:30 PM", name: "Yoga" }] },
+      { day: "Thursday", classes: [{ time: "7:00 AM", name: "Guided Strength" }, { time: "6:00 PM", name: "Zumba" }] },
+      { day: "Friday", classes: [{ time: "6:30 AM", name: "Cardio Training" }, { time: "6:30 PM", name: "Strength Training" }] },
+      { day: "Saturday", classes: [{ time: "7:00 AM", name: "Morning Hike" }, { time: "9:00 AM", name: "Family Session (Junior)" }, { time: "10:30 AM", name: "Yoga" }] },
+    ],
+    pricing: [
+      { plan: "Single session", price: "2,000 FCFA", features: ["Access to the strength floor", "1 group class of your choice"] },
+      { plan: "Monthly membership", price: "15,000 FCFA", featured: true, features: ["Unlimited access to the floor", "All group classes", "1 free fitness assessment"] },
+      { plan: "Quarterly membership", price: "40,000 FCFA", features: ["All monthly benefits", "Personal coaching follow-up", "12% preferential rate"] },
+    ],
+    gallery: [
+      img("gfitness-gallery-1", 700, 500),
+      img("gfitness-gallery-2", 700, 500),
+      img("gfitness-gallery-3", 700, 500),
+      img("gfitness-gallery-4", 700, 500),
+    ],
+  },
+  {
+    slug: "ogab",
+    name: "O'GAB",
+    category: "RESTAURANT & GASTRONOMY",
+    icon: "utensils",
+    shortDescription:
+      "LIAM Groupe's community restaurant in Bangui: authentic, generous Central African cuisine prepared by women trained in our culinary workshops, in a warm setting open for lunch and dinner.",
+    heroImage: img("ogab-hero", 1920, 700),
+    cardImage: img("ogab-hero", 800, 500),
+    programs: [
+      {
+        title: "Community Restaurant",
+        description:
+          "Open daily, Central African and international cuisine at accessible prices, prepared and served by women trained in our workshops.",
+      },
+      {
+        title: "Event Catering",
+        description:
+          "Catering service for weddings, seminars and receptions, showcasing local products.",
+      },
+      {
+        title: "Cooking Workshops",
+        description:
+          "Training in traditional and modern cuisine for women entrepreneurs.",
+      },
+    ],
+    restaurantInfo: {
+      address: "Rue Maurice Dejean, Hôtel Levy's Building, Bangui",
+      hours: [
+        { days: "Monday — Saturday", time: "11:30 AM — 10:00 PM" },
+        { days: "Sunday", time: "12:00 PM — 4:00 PM" },
+      ],
+      phone: "+236 76 03 03 03",
+    },
+    menu: [
+      {
+        category: "Starters",
+        items: [
+          { name: "Cassava fritters", description: "Served with homemade pili-pili sauce", price: "1,500 FCFA", image: "/images/ogab/menu/viandes/477298492_1235434640955067_169714496242722070_n.jpg" },
+          { name: "Okra salad", description: "Fresh okra, tomato, onion, lime", price: "1,500 FCFA", image: "/images/ogab/menu/viandes/476831715_1175434967621701_7374471415607115478_n.jpg" },
+          { name: "Beef skewers", description: "Marinated with local spices", price: "2,000 FCFA", image: "/images/ogab/menu/viandes/481295668_1192063702625494_7453928178350659803_n.jpg" },
+        ],
+      },
+      {
+        category: "Main Courses",
+        items: [
+          { name: "Ngunza (cassava leaves)", description: "Simmered with beef, white rice", price: "3,500 FCFA", image: "/images/ogab/menu/viandes/477806116_1177421537423044_4425753917222172309_n.jpg" },
+          { name: "Chicken Moambé", description: "Palm nut sauce, plantain", price: "4,000 FCFA", image: "/images/ogab/menu/viandes/481817459_1192451379253393_3693422543224332807_n.jpg" },
+          { name: "Grilled fish", description: "Grilled capitaine, attiéké, tomato sauce", price: "4,500 FCFA", image: "/images/ogab/menu/poissons/476743183_1176866707478527_8961538709356112358_n.jpg" },
+          { name: "Saka-Saka", description: "Pounded cassava leaves, peanut, rice", price: "3,000 FCFA", image: "/images/ogab/menu/viandes/479125158_1175434917621706_5041772538801672612_n.jpg" },
+        ],
+      },
+      {
+        category: "Desserts",
+        items: [
+          { name: "Sweet fritters", description: "Served warm with local honey", price: "1,000 FCFA", image: "/images/ogab/menu/viandes/477816060_1176846190813912_1134994849215330419_n.jpg" },
+          { name: "Seasonal fruit salad", description: "Pineapple, mango, papaya", price: "1,500 FCFA", image: "/images/ogab/menu/viandes/479187818_1176865460811985_5121735192033802936_n.jpg" },
+        ],
+      },
+      {
+        category: "Drinks",
+        items: [
+          { name: "Bissap juice", description: "Homemade, lightly sweetened", price: "1,000 FCFA", image: "/images/ogab/drinks/480593977_1182975440200987_1334761629428138187_n.jpg" },
+          { name: "Ginger juice", description: "Homemade", price: "1,000 FCFA", image: "/images/ogab/drinks/481352488_1191077582724106_3638396413268265364_n.jpg" },
+          { name: "Mineral water", description: "50cl", price: "500 FCFA", image: "/images/ogab/drinks/481469421_1192451435920054_9157719752898810166_n.jpg" },
+        ],
+      },
+    ],
+    gallery: [
+      "/images/ogab/drinks/476872713_1176865404145324_5802838533451008756_n.jpg",
+      "/images/ogab/menu/viandes/481063852_1187765299722001_5650020998460137576_n.jpg",
+      "/images/ogab/menu/poissons/478327053_1176866517478546_315024763193329332_n.jpg",
+      "/images/ogab/drinks/482138664_1192591909239340_9009025277274740992_n.jpg",
+      "/images/ogab/menu/viandes/481114410_1191086432723221_2914556064497715437_n.jpg",
+      "/images/ogab/menu/crevettes/481678689_1191077416057456_8939253051982806889_n.jpg",
+      "/images/ogab/menu/viandes/481180074_1191086439389887_8362481496169952499_n.jpg",
+    ],
+  },
+  {
+    slug: "entrepreneuriat",
+    name: "Entrepreneurship & Leadership",
+    category: "WOMEN'S LEADERSHIP",
+    icon: "briefcase",
+    shortDescription:
+      "Empowering Central African women through leadership training, entrepreneurial support, and networking…",
+    heroImage: img("entreprenariat-hero", 1920, 700),
+    cardImage: img("entreprenariat-hero", 800, 500),
+    programs: [
+      {
+        title: "« Dare to Undertake » Conferences",
+        description:
+          "Inspiring events led by women leaders from the private and public sectors.",
+      },
+      {
+        title: "Incubation Program",
+        description:
+          "6-month support program for women-led entrepreneurial projects.",
+      },
+      {
+        title: "Mentorship",
+        description:
+          "Connecting aspiring entrepreneurs with experienced mentors.",
+      },
+    ],
+    gallery: [img("entreprenariat-gallery-1", 700, 500), img("entreprenariat-gallery-2", 700, 500)],
+  },
+  {
+    slug: "formation",
+    name: "Youth Training",
+    category: "EDUCATION & EMPLOYMENT",
+    icon: "graduation",
+    shortDescription:
+      "Providing Central African youth with practical, job-oriented training to foster their integration into the job market. Workshops,…",
+    heroImage: img("formation-hero", 1920, 700),
+    cardImage: img("formation-hero", 800, 500),
+    programs: [
+      {
+        title: "Vocational Training",
+        description:
+          "Hands-on workshops in digital technology, culinary arts, and communications.",
+      },
+      {
+        title: "Internships",
+        description:
+          "Connecting youth with employer partners for paid internships.",
+      },
+      {
+        title: "Mentorship Program",
+        description:
+          "One-on-one guidance for youth by experienced professionals.",
+      },
+    ],
+    gallery: [img("formation-gallery-1", 700, 500), img("formation-gallery-2", 700, 500)],
+  },
+  {
+    slug: "communication",
+    name: "Communication",
+    category: "VISIBILITY & MEDIA",
+    icon: "megaphone",
+    shortDescription:
+      "Ensuring visibility for LIAM Groupe and its partners through a modern communication strategy: press relations,…",
+    heroImage: img("communication-hero", 1920, 700),
+    cardImage: img("communication-hero", 800, 500),
+    programs: [
+      {
+        title: "Press Relations",
+        description:
+          "Media coverage of events and distribution of press releases to local and international media.",
+      },
+      {
+        title: "Audiovisual Production",
+        description:
+          "Creating documentaries, reports, and digital content showcasing our initiatives.",
+      },
+      {
+        title: "Community Management",
+        description:
+          "Social media management and online community engagement.",
+      },
+    ],
+    gallery: [img("communication-gallery-1", 700, 500), img("communication-gallery-2", 700, 500)],
+  },
+  {
+    slug: "evenementiel",
+    name: "Events",
+    category: "CULTURE & GALAS",
+    icon: "calendar",
+    shortDescription:
+      "Organizing large-scale events that bring people together and celebrate Central African culture. Charity galas, festivals…",
+    heroImage: img("evenementiel-hero", 1920, 700),
+    cardImage: img("evenementiel-hero", 800, 500),
+    programs: [
+      {
+        title: "Charity Gala",
+        description:
+          "Prestigious evening gathering partners and donors to fund our programs.",
+      },
+      {
+        title: "Cultural Festivals",
+        description:
+          "Artistic events showcasing music, dance, and local arts.",
+      },
+      {
+        title: "Heritage Night",
+        description:
+          "An evening dedicated to celebrating Central African cultural and craft heritage.",
+      },
+    ],
+    gallery: [img("evenementiel-gallery-1", 700, 500), img("evenementiel-gallery-2", 700, 500)],
+  },
+  {
+    slug: "miss-centrafrique",
+    name: "Miss Centrafrique",
+    category: "EVENT & CULTURE",
+    icon: "crown",
+    shortDescription:
+      "The national beauty and culture pageant, organized every year by LIAM Groupe to celebrate the diversity and talent of Central African women across the country.",
+    heroImage: img("miss-centrafrique-hero", 1920, 700),
+    cardImage: img("miss-centrafrique-hero", 800, 500),
+    programs: [
+      {
+        title: "Annual Miss Centrafrique Edition",
+        description:
+          "National pageant bringing together candidates from the 16 prefectures for the grand finale in Bangui.",
+      },
+      {
+        title: "Regional Casting",
+        description:
+          "Selection tour across the country's main cities to scout candidates.",
+      },
+      {
+        title: "Winners' Social Program",
+        description:
+          "For one year, the winners lead awareness campaigns alongside LIAM's programs (education, health, women's entrepreneurship).",
+      },
+    ],
+    gallery: [
+      img("miss-centrafrique-gallery-1", 700, 500),
+      img("miss-centrafrique-gallery-2", 700, 500),
+    ],
+  },
+];
+
+export const homeHeroImages = [
+  img('home-hero', 1920, 1080),
+  img('apropos-hero', 1920, 1080),
+  img('evenements-hero', 1920, 1080),
+  img('actualites-hero', 1920, 1080),
+  img('partenaires-hero', 1920, 1080),
+  img('gfitness-hero', 1920, 1080),
+  img('ogab-hero', 1920, 1080),
+  img('entreprenariat-hero', 1920, 1080),
+  img('formation-hero', 1920, 1080),
+  img('communication-hero', 1920, 1080),
+  img('evenementiel-hero', 1920, 1080),
+];
+
+export const events = [
+  {
+    slug: "tournoi-feminin-basketball-2026",
+    title: "Women's Basketball Tournament — 2026 Edition",
+    date: "August 15, 2026",
+    location: "Bangui Omnisports Gymnasium",
+    category: "G-Fitness",
+    status: "a_venir",
+    image: img("event-basketball", 800, 600),
+    description:
+      "The 3rd edition of the inter-district women's basketball tournament brings together 16 teams for a high-level competition…",
+  },
+  {
+    slug: "conference-leadership-feminin",
+    title: "Women's Leadership Conference — « Dare to Undertake »",
+    date: "June 28, 2026",
+    location: "ASK Gras Savoye Conference Room, Bangui",
+    category: "Entrepreneurship",
+    status: "a_venir",
+    image: img("event-conference", 800, 600),
+    description:
+      "A day of sharing and inspiration with women leaders from the Central African private and public sectors. Practical workshops,…",
+  },
+  {
+    slug: "atelier-formation-creation-entreprise",
+    title: "Training Workshop — Business Creation",
+    date: "July 10, 2026",
+    location: "LIAM Groupe Headquarters, Bangui",
+    category: "Training",
+    status: "a_venir",
+    image: img("event-formation", 800, 600),
+    description:
+      "Intensive 3-day training for young entrepreneurs. Business model, financing, digital marketing and management…",
+  },
+  {
+    slug: "soiree-gala-liam-2025",
+    title: "Gala Evening — LIAM Groupe 2025",
+    date: "December 20, 2025",
+    location: "Ledger Plaza Hotel, Bangui",
+    category: "Events",
+    status: "passe",
+    image: img("event-gala", 800, 600),
+    description:
+      "A prestigious evening bringing together partners, sponsors, and dignitaries to celebrate the year's achievements…",
+  },
+  {
+    slug: "atelier-gastronomie-saveurs-centrafrique",
+    title: "Gastronomy Workshop — Flavors of Central Africa",
+    date: "November 10, 2025",
+    location: "O'GAB Space, Bangui",
+    category: "O'GAB",
+    status: "passe",
+    image: img("event-gastronomie", 800, 600),
+    description:
+      "Cooking workshop highlighting local products and the know-how of Central African women. Tasting and…",
+  },
+  {
+    slug: "miss-centrafrique-2025",
+    title: "Miss Central African Republic 2025",
+    date: "October 15, 2025",
+    location: "Salle King, Bangui",
+    category: "Miss Centrafrique",
+    status: "passe",
+    image: img("event-miss", 800, 600),
+    description:
+      "Beauty and culture pageant celebrating the diversity and cultural richness of the Central African Republic. Over 5,000…",
+  },
+  {
+    slug: "casting-regional-miss-centrafrique-2026",
+    title: "Regional Casting — Miss Centrafrique 2026",
+    date: "September 5, 2026",
+    location: "Bouar, Berbérati, Bangassou (regional tour)",
+    category: "Miss Centrafrique",
+    status: "a_venir",
+    image: img("event-miss", 800, 600),
+    description:
+      "Selection tour across the country's main cities to scout candidates for the 2026 edition. Registration open to women aged 18 to 26…",
+  },
+];
+
+export const news = [
+  {
+    slug: "prix-innovation-sociale-2026",
+    tag: "NEWS",
+    date: "June 12, 2026",
+    title: "LIAM Groupe wins the 2026 Social Innovation Award",
+    excerpt:
+      "Recognized for its impact on women's entrepreneurship in Central Africa, LIAM Groupe was honored at the…",
+    image: img("news-prix", 800, 600),
+    author: "LIAM Groupe Communications Team",
+    content: [
+      "Recognized for its impact on women's entrepreneurship in Central Africa, LIAM Groupe was honored at the National Social Innovation Forum held in Bangui. This award celebrates over a decade of concrete actions for the empowerment of Central African women and youth.",
+      "The jury particularly highlighted the organization's integrated approach, combining training, entrepreneurial support, and networking across its various programs: G-Fitness, O'GAB, Entrepreneurship & Leadership, and Youth Training.",
+      "« This distinction belongs first and foremost to the hundreds of women and young people who carry our programs on the ground every day, » said the President of LIAM Groupe during the award ceremony. The organization now plans to accelerate the rollout of its initiatives in other prefectures across the country.",
+    ],
+  },
+  {
+    slug: "partenariat-minusca",
+    tag: "PARTNERSHIP",
+    date: "May 3, 2026",
+    title: "New partnership with MINUSCA for peace through sports",
+    excerpt:
+      "A cooperation agreement was signed to organize inter-community tournaments in the prefectures of…",
+    image: img("news-minusca", 800, 600),
+    author: "LIAM Groupe Communications Team",
+    content: [
+      "A cooperation agreement was signed between LIAM Groupe and MINUSCA to organize inter-community sports tournaments in several prefectures. The goal: to use sports as a tool for social cohesion and reconciliation between communities.",
+      "The G-Fitness program, already recognized in Bangui for its women's basketball tournaments, will serve as the methodological foundation for this expanded initiative. Mixed sports events will be organized in the coming months, supervised by facilitators trained in community dialogue.",
+      "This partnership continues LIAM Groupe's efforts for a peaceful Central Africa, where sports become a common language beyond divisions.",
+    ],
+  },
+  {
+    slug: "ogab-restaurant-solidaire",
+    tag: "O'GAB",
+    date: "April 18, 2026",
+    title: "O'GAB opens its first community restaurant in Bangui",
+    excerpt:
+      "The O'GAB restaurant employs 15 women trained by LIAM Groupe and serves 100% local cuisine at affordable prices.",
+    image: img("news-ogab", 800, 600),
+    author: "LIAM Groupe Communications Team",
+    content: [
+      "The O'GAB restaurant has opened its doors in the heart of Bangui. It employs 15 women trained by LIAM Groupe through its community gastronomy program, and serves 100% local cuisine at prices accessible to all residents of Bangui.",
+      "Beyond dining, the establishment serves as a showcase for Central African local products and a venue for ongoing training for new cohorts of women entrepreneurs.",
+      "« Every dish served here tells a story of resilience and expertise, » says one of the chefs trained by the O'GAB program. The restaurant is open Monday through Saturday, from 11:00 AM to 9:00 PM.",
+    ],
+  },
+  {
+    slug: "500-jeunes-formes-numerique",
+    tag: "TRAINING",
+    date: "March 10, 2026",
+    title: "500 youth trained in digital skills in 2025",
+    excerpt:
+      "Year-end review of the youth training program: 500 graduates, 120 jobs created, and 30 startups…",
+    image: img("news-formation", 800, 600),
+    author: "LIAM Groupe Communications Team",
+    content: [
+      "The 2025 results for LIAM Groupe's Youth Training program are impressive: 500 young graduates in digital skills, from web development to digital communication and project management.",
+      "Of these 500 graduates, 120 have already secured employment and about thirty have launched their own startups with support from LIAM Groupe's incubation program. These results confirm the relevance of short, practical training grounded in the real needs of the Central African market.",
+      "For 2026, the organization plans to double its capacity and open new fields of study, particularly in e-commerce and Mobile Money.",
+    ],
+  },
+  {
+    slug: "tournoi-basketball-10000-spectateurs",
+    tag: "G-FITNESS",
+    date: "February 22, 2026",
+    title: "Women's Basketball Tournament reaches 10,000 spectators",
+    excerpt:
+      "Attendance record broken for the inter-district tournament final. An event that confirms the growing enthusiasm for…",
+    image: img("news-basketball", 800, 600),
+    author: "LIAM Groupe Communications Team",
+    content: [
+      "The Women's Basketball Tournament final, organized by LIAM Groupe's G-Fitness program, drew over 10,000 spectators to the Bangui Omnisports Gymnasium — an attendance record for this now iconic event.",
+      "Sixteen teams from different neighborhoods of the capital competed over two weeks in a festive atmosphere. The final was attended by several public figures who came to support the initiative.",
+      "Building on this success, LIAM Groupe has already announced an expanded 2027 edition in other cities across the country, with the ambition of making this tournament a national event.",
+    ],
+  },
+  {
+    slug: "entretien-marie-claire-ngbokoli",
+    tag: "PORTRAIT",
+    date: "January 5, 2026",
+    title: "Interview with Marie-Claire Ngbokoli: « The future lies with youth »",
+    excerpt:
+      "The founder of LIAM Groupe shares insights into the NGO's challenges, successes, and plans for the years ahead.",
+    image: img("news-portrait", 800, 600),
+    author: "LIAM Groupe Communications Team",
+    content: [
+      "Eleven years after founding LIAM Groupe, founder Marie-Claire Ngbokoli reflects on the journey: « We started as a small group of determined women in Bangui, and today our programs reach thousands of beneficiaries across the country. »",
+      "Asked about challenges, she mentions the lack of structural funding for Central African NGOs and the need to diversify partnerships, particularly with the local private sector. « Every partner who joins us means one more project launched for a woman or young person in this country. »",
+      "For the years ahead, she announces a clear ambition: to expand LIAM Groupe's programs to all prefectures of the Central African Republic, building on local networks trained since 2015.",
+    ],
+  },
+  {
+    slug: "lancement-castings-miss-centrafrique-2026",
+    tag: "Miss Centrafrique",
+    date: "July 20, 2026",
+    title: "Casting calls open for Miss Centrafrique 2026",
+    excerpt:
+      "LIAM Groupe launches the regional selection tour for the 12th edition of the pageant, with stops in three new cities this year.",
+    image: img("event-miss", 800, 600),
+    author: "LIAM Groupe Communications Team",
+    content: [
+      "LIAM Groupe announces the opening of registrations for the 12th edition of Miss Centrafrique. Candidates aged 18 to 26 can attend regional castings in Bouar, Berbérati and Bangassou ahead of the grand finale in Bangui.",
+      "Beyond the beauty pageant, the program places strong emphasis on culture and social engagement: candidates will take part in leadership and public speaking workshops led by LIAM Groupe's Entrepreneurship & Leadership team.",
+      "Like her predecessors, the 2026 winner will join LIAM Groupe's awareness campaigns throughout her one-year term.",
+    ],
+  },
+];
+
+export const team = [
+  {
+    name: "Marie-Claire Ngbokoli",
+    role: "Founder & President",
+    image: img("team-marie-claire", 600, 700),
+    description:
+      "A visionary and committed leader, she founded LIAM Groupe in 2015 to provide Central African women and youth with the tools for their own development.",
+    social: {
+      linkedin: "https://linkedin.com/in/marie-claire-ngbokoli",
+      facebook: "https://facebook.com/marieclaire.ngbokoli",
+      instagram: "https://instagram.com/marieclaire.ngbokoli",
+      x: "https://x.com/marieclaire_ngb",
+    },
+  },
+  {
+    name: "Jean-Pierre Mbaïkoua",
+    role: "Executive Director",
+    image: img("team-jean-pierre", 600, 700),
+    description:
+      "Drives the overall strategy of the organization and coordinates LIAM Groupe's six areas of intervention.",
+    social: {
+      linkedin: "https://linkedin.com/in/jean-pierre-mbaikoua",
+      facebook: "https://facebook.com/jeanpierre.mbaikoua",
+      instagram: "https://instagram.com/jeanpierre.mbaikoua",
+      x: "https://x.com/jp_mbaikoua",
+    },
+  },
+  {
+    name: "Aminata Koyambou",
+    role: "G-Fitness Program Manager",
+    image: img("team-aminata", 600, 700),
+    description:
+      "A former athlete, she leads LIAM Groupe's sports programs for women and girls in Bangui.",
+    social: {
+      linkedin: "https://linkedin.com/in/aminata-koyambou",
+      facebook: "https://facebook.com/aminata.koyambou",
+      instagram: "https://instagram.com/aminata_koyambou",
+      x: "https://x.com/aminata_koyambou",
+    },
+  },
+  {
+    name: "Florence Dacko-Posso",
+    role: "O'GAB Program Manager",
+    image: img("team-florence", 600, 700),
+    description:
+      "Chef and entrepreneur. She develops community gastronomy programs and promotes local Central African products through workshops and culinary events.",
+    social: {
+      linkedin: "https://linkedin.com/in/florence-dacko-posso",
+      facebook: "https://facebook.com/florence.dackoposso",
+      instagram: "https://instagram.com/florence_dacko",
+      x: "https://x.com/florence_dacko",
+    },
+  },
+  {
+    name: "Romain Dologuélé",
+    role: "Events Manager",
+    image: img("team-romain", 600, 700),
+    description:
+      "Event organizer with over 10 years of experience. He coordinates LIAM Groupe's galas, sports tournaments, and cultural events across the country.",
+    social: {
+      linkedin: "https://linkedin.com/in/romain-dologuele",
+      facebook: "https://facebook.com/romain.dologuele",
+      instagram: "https://instagram.com/romain_dologuele",
+      x: "https://x.com/romain_dologuele",
+    },
+  },
+  {
+    name: "Esther Gbezera",
+    role: "Communications Manager",
+    image: img("team-esther", 600, 700),
+    description:
+      "Journalist and communications specialist. She ensures the visibility of the NGO's actions and develops media partnerships to amplify the impact of our programs.",
+    social: {
+      linkedin: "https://linkedin.com/in/esther-gbezera",
+      facebook: "https://facebook.com/esther.gbezera",
+      instagram: "https://instagram.com/esther_gbezera",
+      x: "https://x.com/esther_gbezera",
+    },
+  },
+];
+
+export const partners = [
+  {
+    name: "FAFECA",
+    initial: "F",
+    logo: "https://res.cloudinary.com/dwmrzp61c/image/upload/f_auto,q_auto/v1/liam-groupe/fafeca.png",
+    color: "#8A0015",
+    category: "INSTITUTIONAL PARTNER",
+    subtitle: "Federation of Women's Associations of Central Africa",
+    description:
+      "FAFECA represents over 120 women's associations across the Central African Republic. A historic partner of LIAM Groupe since 2018, it supports us in deploying our women's leadership and young women's training programs.",
+    collaboration: "Joint programs in women's leadership training, entrepreneurial mentorship.",
+    website: null,
+  },
+  {
+    name: "ASK Gras Savoye",
+    initial: "A",
+    logo: "https://res.cloudinary.com/dwmrzp61c/image/upload/f_auto,q_auto/v1/liam-groupe/ask-gras-savoye.png",
+    color: "#16335B",
+    category: "CORPORATE PARTNER",
+    subtitle: "ASK Gras Savoye - Bangui",
+    description:
+      "Leader in insurance and social protection in the Central African Republic. ASK Gras Savoye provides financial support and makes its conference rooms available for our events.",
+    collaboration: "Financial support, event space provision, entrepreneurial mentorship.",
+    website: null,
+  },
+  {
+    name: "Salle King",
+    initial: "S",
+    color: "#C99A2E",
+    category: "EVENT PARTNER",
+    subtitle: "Salle King — Event Complex",
+    description:
+      "Bangui's premier event complex. Salle King hosts our largest events: charity galas, beauty pageants, sports tournaments, and international conferences.",
+    collaboration: "Venue provision, audiovisual equipment, event logistics.",
+    website: null,
+  },
+  {
+    name: "Diaspora Multimedia",
+    initial: "D",
+    color: "#1E5631",
+    category: "MEDIA PARTNER",
+    subtitle: "Diaspora Multimedia CAR",
+    description:
+      "Communications and audiovisual production agency specialized in promoting Central African culture. Diaspora Multimedia handles media coverage for all our events and produces our digital content.",
+    collaboration: "Event coverage, video production, community management, press relations.",
+    website: "#",
+  },
+  {
+    name: "MINUSCA",
+    initial: "M",
+    logo: "https://res.cloudinary.com/dwmrzp61c/image/upload/f_auto,q_auto/v1/liam-groupe/minusca.png",
+    color: "#2255A4",
+    category: "INTERNATIONAL PARTNER",
+    subtitle: "United Nations Multidimensional Integrated Stabilization Mission in the Central African Republic",
+    description:
+      "MINUSCA supports our peace-building programs through sports and culture. With their support, we have been able to organize inter-community events in several prefectures of the CAR.",
+    collaboration: "Project funding, event security, field logistics support.",
+    website: "#",
+  },
+  {
+    name: "ONG Espoir",
+    initial: "E",
+    color: "#C9531E",
+    category: "ASSOCIATION PARTNER",
+    subtitle: "ONG Espoir for Youth",
+    description:
+      "A Central African NGO dedicated to education and professional integration of youth. Together, we have trained over 500 young people in culinary arts, communications, and sports.",
+    collaboration: "Joint training programs, scholarships, professional internships.",
+    website: "#",
+  },
+  {
+    name: "Orange Centrafrique",
+    initial: "O",
+    color: "#FF7900",
+    category: "CORPORATE PARTNER",
+    subtitle: "Orange Centrafrique — Bangui",
+    description:
+      "Leading telecommunications operator in the Central African Republic. Orange Centrafrique supports our sports and cultural events by providing connectivity, equipment, and visibility on its digital channels reaching millions of subscribers.",
+    collaboration: "Event connectivity, logistical support, digital media coverage.",
+    website: "#",
+  },
+  {
+    name: "UNICEF CAR",
+    initial: "U",
+    color: "#1CABE2",
+    category: "INTERNATIONAL PARTNER",
+    subtitle: "United Nations Children's Fund — CAR",
+    description:
+      "UNICEF Central African Republic supports our youth training and women's sports programs. Through this partnership, over 200 girls have benefited from leadership workshops and child rights awareness sessions.",
+    collaboration: "Co-funding of youth programs, child rights training, advocacy.",
+    website: "#",
+  },
+  {
+    name: "Radio Centrafrique",
+    initial: "R",
+    color: "#2E7D32",
+    category: "MEDIA PARTNER",
+    subtitle: "Radio Centrafrique — The Voice of the Nation",
+    description:
+      "The leading national radio station in the CAR, Radio Centrafrique is our historic media partner. It covers all our events and broadcasts our public interest messages to millions of listeners across the country.",
+    collaboration: "Media coverage, radio spots, interviews, distribution of press releases.",
+    website: "#",
+  },
+  {
+    name: "Hôtel Ledger Plaza",
+    initial: "H",
+    color: "#8B4513",
+    category: "EVENT PARTNER",
+    subtitle: "Ledger Plaza Bangui — 5-Star Hotel",
+    description:
+      "Bangui's premier luxury hotel, the Ledger Plaza hosts our charity galas, press conferences, and official receptions. Their events team supports us in organizing our biggest gatherings.",
+    collaboration: "Venue provision, guest accommodation, preferential rates for our events.",
+    website: "#",
+  },
+];
+
+export const testimonials = [
+  {
+    quote:
+      "The training in office skills and digital communication helped me land an internship at a local company. Today I am independent and can support my family. Thank you LIAM Groupe!",
+    name: "Christelle Ngoumbango",
+    role: "Beneficiary, Youth Training Program",
+    image: img("testimonial-christelle", 100, 100),
+  },
+  {
+    quote:
+      "O'GAB showcases Central African culinary heritage like no one else. The gastronomy workshops create jobs for women while preserving our traditions — a remarkable initiative.",
+    name: "Michel Béranger",
+    role: "Chef, O'GAB Partner",
+    image: img("testimonial-michel", 100, 100),
+  },
+  {
+    quote:
+      "Our partnership with LIAM Groupe demonstrates how civil society can be an effective channel for peace and development initiatives. Their on-the-ground knowledge is exceptional.",
+    name: "Fatimé Hassan",
+    role: "Representative, MINUSCA",
+    image: img("testimonial-fatime", 100, 100),
+  },
+];
+
+
+export const products = [
+  {
+    slug: "casquette-liam",
+    name: "LIAM Groupe Cap",
+    description: "Adjustable cap embroidered with the LIAM Groupe logo. Available in black and white.",
+    price: "5,000 FCFA",
+    image: "/images/Nos_produits/749354955_1658208996311419_3819724823827381595_n.jpg",
+    category: "Accessories",
+    domain: "liam-groupe",
+  },
+  {
+    slug: "sac-main-gfitness",
+    name: "G-Fitness Tote Bag",
+    description: "Recycled cotton tote bag with G-Fitness screen print. Perfect for sports and everyday use.",
+    price: "7,000 FCFA",
+    image: "/images/Nos_produits/sacs/749652135_1658209169644735_5658764887506984283_n.jpg",
+    category: "Accessories",
+    domain: "g-fitness",
+  },
+  {
+    slug: "t-shirt-liam",
+    name: "LIAM Groupe T-Shirt",
+    description: "Organic cotton T-shirt, standard fit, LIAM Groupe logo screen-printed on the chest. Multiple sizes available.",
+    price: "6,000 FCFA",
+    image: "/images/Nos_produits/t_shirts/749354944_1658208942978091_7351098969532136844_n.jpg",
+    category: "Clothing",
+    domain: "liam-groupe",
+  },
+];
+
+export const footerLinks = {
+  liamGroupe: [
+    { label: "Our Mission", to: "/a-propos" },
+    { label: "Our Team", to: "/a-propos" },
+    { label: "Support Us", to: "/a-propos" },
+  ],
+  domaines: domains.map((d) => ({ label: d.name, to: `/domaines/${d.slug}` })),
+  agir: [
+    { label: "Shop", to: "/boutique" },
+    { label: "Upcoming Events", to: "/evenements" },
+    { label: "News", to: "/actualites" },
+  ],
+};

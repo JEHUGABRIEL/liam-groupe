@@ -1,0 +1,8 @@
+{
+  "name": "liam-groupe",
+  "framework": "nextjs",
+  "rootDirectory": "nextjs",
+  "buildCommand": "npm run build",
+  "installCommand": "npm install",
+  "outputDirectory": ".next"
+}
