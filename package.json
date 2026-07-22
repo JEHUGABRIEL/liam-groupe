@@ -5,7 +5,6 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "prebuild": "bash scripts/sync-ogab-images.sh",
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview",
