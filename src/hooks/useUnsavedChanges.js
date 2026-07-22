@@ -1,9 +1,7 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect } from "react";
 
 export default function useUnsavedChanges(isDirty) {
-  const [blocked, setBlocked] = useState(false);
-
-  // Browser beforeunload warning
+  // Browser beforeunload warning for dirty forms
   useEffect(() => {
     if (!isDirty) return;
 
@@ -16,12 +14,6 @@ export default function useUnsavedChanges(isDirty) {
     return () => window.removeEventListener("beforeunload", handler);
   }, [isDirty]);
 
-  // Simple blocker for custom navigation blocking in modals
-  const blocker = {
-    state: blocked ? "blocked" : "unblocked",
-    reset: useCallback(() => setBlocked(false), []),
-    proceed: useCallback(() => setBlocked(true), []),
-  };
-
-  return { blocker };
+  // Static blocker (Next.js App Router doesn't support useBlocker from react-router-dom)
+  return { blocker: { state: "unblocked", reset: () => {}, proceed: () => {} } };
 }
