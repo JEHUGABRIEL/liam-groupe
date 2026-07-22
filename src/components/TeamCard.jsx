@@ -1,3 +1,4 @@
+"use client";
 import { ImageOff } from "lucide-react";
 import SafeImg from "./SafeImg";
 import { FacebookIcon, InstagramIcon, XIcon, LinkedInIcon } from "./SocialIcons";

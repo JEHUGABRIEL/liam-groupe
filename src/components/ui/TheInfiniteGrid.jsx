@@ -1,5 +1,6 @@
+"use client";
 import { useRef } from "react";
-import { Link } from "react-router-dom";
+import { Link } from "next/link";
 import { useTranslation } from "react-i18next";
 import { useLangPath } from "../../lib/langPath";
 import {

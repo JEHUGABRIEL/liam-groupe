@@ -1,5 +1,8 @@
+"use client";
 import { useEffect, useState, useRef } from "react";
-import { Link, NavLink, useLocation, useNavigate, useParams } from "react-router-dom";
+import Link from "next/link";
+import { useParams, usePathname, useRouter } from "next/navigation";
+import { NavLink } from "../lib/navLink";
 import { ChevronDown, Globe, X, ArrowUpRight, Home, Info, LayoutGrid, Calendar, Newspaper, Phone, ShoppingBag } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { motion, AnimatePresence } from "framer-motion";
@@ -22,13 +25,13 @@ export default function Navbar({ transparentOnTop = true, topOffset = 0 }) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [langOpen, setLangOpen] = useState(false);
   const [contactOpen, setContactOpen] = useState(false);
-  const location = useLocation();
+  const pathname = usePathname();
   const { data: events = [] } = useEvents();
   const closeTimer = useRef(null);
   const langTimer = useRef(null);
   const { lang } = useParams();
-  const navigate = useNavigate();
-  const [prevPath, setPrevPath] = useState(location.pathname);
+  const router = useRouter();
+  const [prevPath, setPrevPath] = useState(pathname);
   const { t, i18n } = useTranslation();
   const { data: navLinks = [] } = useNavLinks();
   const { data: domains = [] } = useDomains();
@@ -59,8 +62,8 @@ export default function Navbar({ transparentOnTop = true, topOffset = 0 }) {
     return () => window.removeEventListener("scroll", onScroll);
   }, [transparentOnTop]);
 
-  if (prevPath !== location.pathname) {
-    setPrevPath(location.pathname);
+  if (prevPath !== pathname) {
+    setPrevPath(pathname);
     if (mobileOpen) setMobileOpen(false);
     if (domainsOpen) setDomainsOpen(false);
   }
@@ -79,12 +82,12 @@ export default function Navbar({ transparentOnTop = true, topOffset = 0 }) {
   
   useEffect(() => {
     if (
-      location.pathname.includes("evenement") ||
-      location.pathname.includes("actualite")
+      pathname.includes("evenement") ||
+      pathname.includes("actualite")
     ) {
       dismissBadge();
     }
-  }, [location.pathname]);
+  }, [pathname]);
 
   const dismissBadge = () => {
     try {
@@ -318,10 +321,10 @@ export default function Navbar({ transparentOnTop = true, topOffset = 0 }) {
                       <button
                         onClick={() => {
                           i18n.changeLanguage("fr");
-                          navigate(
+                          router.push(
                             langPath(
                               "fr",
-                              location.pathname.replace(/^\/[a-z]{2}/, "") || "/"
+                              pathname.replace(/^\/[a-z]{2}/, "") || "/"
                             )
                           );
                           setLangOpen(false);
@@ -337,10 +340,10 @@ export default function Navbar({ transparentOnTop = true, topOffset = 0 }) {
                       <button
                         onClick={() => {
                           i18n.changeLanguage("en");
-                          navigate(
+                          router.push(
                             langPath(
                               "en",
-                              location.pathname.replace(/^\/[a-z]{2}/, "") || "/"
+                              pathname.replace(/^\/[a-z]{2}/, "") || "/"
                             )
                           );
                           setLangOpen(false);
@@ -476,8 +479,8 @@ export default function Navbar({ transparentOnTop = true, topOffset = 0 }) {
                       })();
                       const isActive = link.dropdown
                         ? domains.some((d) => location.pathname.includes(d.slug))
-                        : location.pathname === langPath(lang || "fr", link.to) ||
-                          (link.to !== "/" && location.pathname.startsWith(langPath(lang || "fr", link.to)));
+                        :        pathname === langPath(lang || "fr", link.to) ||
+                          (link.to !== "/" && pathname.startsWith(langPath(lang || "fr", link.to)));
 
                       return (
                         <motion.div
@@ -627,10 +630,10 @@ export default function Navbar({ transparentOnTop = true, topOffset = 0 }) {
                       <button
                         onClick={() => {
                           i18n.changeLanguage("fr");
-                          navigate(
+                          router.push(
                             langPath(
                               "fr",
-                              location.pathname.replace(/^\/[a-z]{2}/, "") || "/"
+                              pathname.replace(/^\/[a-z]{2}/, "") || "/"
                             )
                           );
                           setMobileOpen(false);
@@ -646,10 +649,10 @@ export default function Navbar({ transparentOnTop = true, topOffset = 0 }) {
                       <button
                         onClick={() => {
                           i18n.changeLanguage("en");
-                          navigate(
+                          router.push(
                             langPath(
                               "en",
-                              location.pathname.replace(/^\/[a-z]{2}/, "") || "/"
+                              pathname.replace(/^\/[a-z]{2}/, "") || "/"
                             )
                           );
                           setMobileOpen(false);

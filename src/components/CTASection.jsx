@@ -1,4 +1,5 @@
-import { Link } from "react-router-dom";
+"use client";
+import { Link } from "next/link";
 import { Mail, ArrowUpRight } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useLangPath } from "../lib/langPath";

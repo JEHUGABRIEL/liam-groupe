@@ -1,3 +1,4 @@
+"use client";
 import { CalendarDays, MapPin, ImageOff } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import SafeImg from "./SafeImg";

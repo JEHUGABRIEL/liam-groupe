@@ -1,3 +1,4 @@
+"use client";
 import { useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, ShoppingBag, Minus, Plus, Trash2, MessageSquare } from "lucide-react";

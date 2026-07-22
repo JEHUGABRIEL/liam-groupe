@@ -1,3 +1,4 @@
+"use client";
 import { useState, useRef, useEffect } from "react";
 import { Upload, X, Loader2, Link, ImageOff, RefreshCw } from "lucide-react";
 import { useTranslation } from "react-i18next";

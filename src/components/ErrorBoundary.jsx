@@ -1,3 +1,4 @@
+"use client";
 import { Component } from "react";
 import { withTranslation } from "react-i18next";
 import { AlertTriangle, RefreshCw, Home } from "lucide-react";

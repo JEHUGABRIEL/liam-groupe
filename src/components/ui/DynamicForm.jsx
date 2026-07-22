@@ -1,3 +1,4 @@
+"use client";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Send, User, Mail, Phone, MessageSquare } from "lucide-react";

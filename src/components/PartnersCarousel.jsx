@@ -1,3 +1,4 @@
+"use client";
 import { usePartners } from "../hooks/useSiteData";
 import useScrollReveal from "../hooks/useScrollReveal";
 

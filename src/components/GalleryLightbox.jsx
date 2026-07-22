@@ -1,3 +1,4 @@
+"use client";
 import { useEffect, useCallback, useState } from "react";
 import { X, ChevronLeft, ChevronRight, Maximize2, Minimize2 } from "lucide-react";
 import { useTranslation } from "react-i18next";

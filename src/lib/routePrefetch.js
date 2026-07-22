@@ -1,30 +1,7 @@
-
-
-const routeImporters = {
-  "/a-propos": () => import("../pages/About"),
-  "/boutique": () => import("../pages/BoutiqueIndex"),
-  "/actualites": () => import("../pages/News"),
-  "/evenements": () => import("../pages/Events"),
-  "/domaines": () => import("../pages/DomainsIndex"),
-  "/admin": () => import("../pages/Admin"),
-};
-
-const prefetched = new Set();
-
+// In Next.js, route prefetching is handled automatically by the <Link> component.
+// This is kept as a no-op for compatibility with existing code that calls prefetchRoute.
 
 export function prefetchRoute(path) {
-  if (!path || prefetched.has(path)) return;
-
-  const importer = routeImporters[path];
-  if (importer) {
-    prefetched.add(path);
-    importer().catch(() => {});
-    return;
-  }
-
-  
-  if (path.startsWith("/domaines/") && !prefetched.has("__domain")) {
-    prefetched.add("__domain");
-    import("../pages/Domain").catch(() => {});
-  }
+  // Next.js Link component handles prefetching automatically
+  // when the link is in the viewport
 }

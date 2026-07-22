@@ -1,3 +1,4 @@
+"use client";
 import { useTranslation } from "react-i18next";
 import useRealtimeCounts from "../../hooks/useRealtimeCounts.js";
 import {

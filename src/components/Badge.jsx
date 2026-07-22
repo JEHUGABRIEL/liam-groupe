@@ -1,3 +1,4 @@
+"use client";
 
 export default function Badge({ icon: Icon, children, variant = "rose", withRules = false }) {
   const styles =

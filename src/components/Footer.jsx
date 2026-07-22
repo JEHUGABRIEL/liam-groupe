@@ -1,4 +1,6 @@
-import { Link, NavLink } from "react-router-dom";
+"use client";
+import Link from "next/link";
+import { NavLink } from "../lib/navLink";
 import { Send, MessageSquare, Phone, MapPin, Mail, Clock, ExternalLink } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useLangPath } from "../lib/langPath";
