@@ -12,11 +12,11 @@ export const CLOUD_NAME = CLOUD_NAME_FROM_ENV || "dwmrzp61c";
 export const UPLOAD_PRESET = "liam-groupe";
 
 if (missing.length > 0) {
-  console.warn(
-    `[Cloudinary] Variables d'environnement manquantes : ${missing.join(", ")}. ` +
-    `Le cloud name par défaut "dwmrzp61c" sera utilisé. Si le build échoue, vérifie ` +
-    `que le fichier .env contient ces clés ou qu'un redémarrage du serveur suffit.`
-  );
+  const msg = `[Cloudinary] Variables d'environnement manquantes : ${missing.join(", ")}. ` +
+    `Le cloud name par défaut "dwmrzp61c" sera utilisé.`;
+  if (process.env.NODE_ENV !== "production") {
+    console.warn(msg);
+  }
 }
 
 export const BASE_URL = `https://res.cloudinary.com/${CLOUD_NAME}/image/upload`;
