@@ -140,18 +140,9 @@ CREATE INDEX idx_events_status ON events(status);
 CREATE INDEX idx_news_slug ON news(slug);
 CREATE INDEX idx_site_settings_key ON site_settings(key);
 
--- Administrateurs
-CREATE TABLE admins (
-  id BIGSERIAL PRIMARY KEY,
-  email TEXT UNIQUE NOT NULL,
-  password_hash TEXT NOT NULL,
-  name TEXT NOT NULL DEFAULT 'Admin',
-  created_at TIMESTAMPTZ DEFAULT now()
-);
-
-CREATE INDEX idx_admins_email ON admins(email);
-
 -- Profils administrateurs (liés aux utilisateurs Supabase Auth)
+-- Chaque admin doit d'abord être créé dans Supabase Auth (Authentication > Users),
+-- puis son profil est ajouté ici avec l'UUID correspondant.
 CREATE TABLE admin_profiles (
   id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
   name TEXT NOT NULL DEFAULT 'Admin',
@@ -163,7 +154,7 @@ CREATE TABLE admin_profiles (
 --   - SELECT : publique pour toutes les tables (lecture du site public)
 --   - INSERT : publique pour messages et registrations (formulaires publics)
 --   - INSERT / UPDATE / DELETE : authentifié uniquement pour toutes les autres tables (panneau admin)
---   - admins : SELECT restreint aux authentifiés (ne pas exposer la liste des admins)
+--   - admin_profiles : SELECT restreint aux authentifiés
 
 ALTER TABLE domains ENABLE ROW LEVEL SECURITY;
 ALTER TABLE events ENABLE ROW LEVEL SECURITY;
@@ -174,7 +165,6 @@ ALTER TABLE testimonials ENABLE ROW LEVEL SECURITY;
 ALTER TABLE messages ENABLE ROW LEVEL SECURITY;
 ALTER TABLE registrations ENABLE ROW LEVEL SECURITY;
 ALTER TABLE site_settings ENABLE ROW LEVEL SECURITY;
-ALTER TABLE admins ENABLE ROW LEVEL SECURITY;
 ALTER TABLE admin_profiles ENABLE ROW LEVEL SECURITY;
 
 -- ==============================
@@ -191,8 +181,7 @@ CREATE POLICY "Lecture publique" ON registrations FOR SELECT USING (true);
 CREATE POLICY "Lecture publique" ON messages FOR SELECT USING (true);
 CREATE POLICY "Lecture publique" ON site_settings FOR SELECT USING (true);
 
--- La table admins n'est pas en lecture publique (ne pas exposer les admins)
-CREATE POLICY "Lecture authentifiée" ON admins FOR SELECT USING (auth.role() = 'authenticated');
+-- admin_profiles : lecture restreinte aux admins authentifiés
 CREATE POLICY "Lecture authentifiée" ON admin_profiles FOR SELECT USING (auth.role() = 'authenticated');
 
 -- ==========================================
@@ -227,10 +216,6 @@ CREATE POLICY "Suppression authentifiée" ON testimonials FOR DELETE USING (auth
 CREATE POLICY "Écriture authentifiée" ON site_settings FOR INSERT WITH CHECK (auth.role() = 'authenticated');
 CREATE POLICY "Modification authentifiée" ON site_settings FOR UPDATE USING (auth.role() = 'authenticated');
 CREATE POLICY "Suppression authentifiée" ON site_settings FOR DELETE USING (auth.role() = 'authenticated');
-
-CREATE POLICY "Écriture authentifiée" ON admins FOR INSERT WITH CHECK (auth.role() = 'authenticated');
-CREATE POLICY "Modification authentifiée" ON admins FOR UPDATE USING (auth.role() = 'authenticated');
-CREATE POLICY "Suppression authentifiée" ON admins FOR DELETE USING (auth.role() = 'authenticated');
 
 CREATE POLICY "Écriture authentifiée" ON admin_profiles FOR INSERT WITH CHECK (auth.role() = 'authenticated');
 CREATE POLICY "Modification authentifiée" ON admin_profiles FOR UPDATE USING (auth.role() = 'authenticated');
