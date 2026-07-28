@@ -1,12 +1,13 @@
 "use client";
 import { useState, useRef, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Send, MessageSquare, Mail } from "lucide-react";
+import { X, Send, MessageSquare, Mail, ExternalLink } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { supabase } from "../lib/supabase.js";
 import { useSiteInfo } from "../hooks/useSiteData";
 import { useFormConfig } from "../hooks/useFormConfig.js";
 import DynamicForm from "./ui/DynamicForm.jsx";
+import { WhatsAppIcon } from "./SocialIcons";
 
 
 
@@ -656,13 +657,29 @@ export default function ChatBot() {
                 <p className="font-semibold text-sm">{t("chatbot.chatTitle")}</p>
                 <p className="text-xs text-white/70">{t("chatbot.chatSubtitle")}</p>
               </div>
-              <button
-                onClick={() => setOpen(false)}
-                className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors shrink-0"
-                aria-label={t("chatbot.closeChat")}
-              >
-                <X className="w-4 h-4" />
-              </button>
+              <div className="flex items-center gap-1.5">
+                {whatsappNumber && (
+                  <a
+                    href={`https://wa.me/${whatsappNumber}?text=${encodeURIComponent(t("whatsapp.prefilledMessage"))}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-8 h-8 rounded-full bg-green-500/20 hover:bg-green-500/30 flex items-center justify-center transition-colors shrink-0 group relative"
+                    aria-label={t("whatsapp.ariaLabel")}
+                  >
+                    <WhatsAppIcon className="w-4 h-4" />
+                    <span className="absolute -top-8 left-1/2 -translate-x-1/2 bg-ink text-white text-[10px] font-medium px-2 py-1 rounded-md whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+                      {t("whatsapp.cta")}
+                    </span>
+                  </a>
+                )}
+                <button
+                  onClick={() => setOpen(false)}
+                  className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors shrink-0"
+                  aria-label={t("chatbot.closeChat")}
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
             </div>
 
             
@@ -745,26 +762,29 @@ export default function ChatBot() {
                   />
 
                   
-                  <div className="pt-2 space-y-2">
+                  <div className="pt-3 space-y-2.5 border-t border-gray-100">
+                    <p className="text-[11px] font-semibold uppercase tracking-wider text-gray-400">
+                      {t("contact.socialTitle")} 
+                    </p>
                     {whatsappNumber && (
                       <a
                         href={`https://wa.me/${whatsappNumber}?text=${encodeURIComponent(t("whatsapp.prefilledMessage"))}`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="flex items-center gap-2 text-xs text-gray-500 hover:text-[#25D366] transition-colors"
+                        className="flex items-center gap-2.5 text-sm font-medium text-green-600 hover:text-green-700 bg-green-50 hover:bg-green-100 rounded-xl px-3.5 py-2.5 transition-all group"
                       >
-                        <svg viewBox="0 0 32 32" className="w-3.5 h-3.5" fill="currentColor">
-                          <path d="M16.004 3C9.373 3 4 8.373 4 15.004c0 2.478.727 4.79 1.984 6.73L4.5 28.5l6.938-1.822a11.94 11.94 0 0 0 4.566.907h.005c6.63 0 12.004-5.373 12.004-12.004C28.013 8.373 22.64 3 16.004 3Zm0 21.86h-.004a9.87 9.87 0 0 1-5.03-1.378l-.36-.213-3.703.972.988-3.607-.234-.37a9.86 9.86 0 0 1-1.51-5.26c0-5.454 4.44-9.892 9.897-9.892 2.643 0 5.126 1.03 6.994 2.9a9.83 9.83 0 0 1 2.896 6.997c0 5.454-4.44 9.851-9.934 9.851Zm5.42-7.39c-.297-.148-1.758-.867-2.03-.966-.273-.099-.472-.148-.67.148-.198.297-.767.966-.94 1.164-.173.198-.347.223-.644.075-.297-.148-1.254-.462-2.39-1.474-.883-.788-1.48-1.762-1.653-2.06-.173-.297-.018-.457.13-.605.134-.133.297-.347.446-.52.148-.174.198-.298.297-.496.099-.198.05-.372-.025-.52-.075-.148-.67-1.614-.917-2.212-.242-.582-.487-.503-.67-.512l-.57-.01c-.198 0-.52.075-.792.372-.272.297-1.04 1.017-1.04 2.48 0 1.463 1.065 2.877 1.213 3.075.148.198 2.096 3.2 5.078 4.488.71.306 1.263.489 1.694.626.712.227 1.36.195 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.288.173-1.412-.074-.124-.272-.198-.57-.347Z" />
-                        </svg>
-                        <span>{t("chatbot.viaWhatsapp")}</span>
+                        <WhatsAppIcon className="w-4 h-4 shrink-0" />
+                        <span className="flex-1">{t("chatbot.viaWhatsapp")}</span>
+                        <ExternalLink className="w-3 h-3 opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all" />
                       </a>
                     )}
                     <a
                       href={`mailto:${contactEmail}`}
-                      className="flex items-center gap-2 text-xs text-gray-500 hover:text-brand-500 transition-colors"
+                      className="flex items-center gap-2.5 text-sm text-gray-500 hover:text-brand-600 bg-gray-50 hover:bg-brand-50 rounded-xl px-3.5 py-2.5 transition-all group"
                     >
-                      <Mail className="w-3.5 h-3.5" />
-                      <span>{t("chatbot.viaEmail")}</span>
+                      <Mail className="w-4 h-4 shrink-0" />
+                      <span className="flex-1">{t("chatbot.viaEmail")}</span>
+                      <ExternalLink className="w-3 h-3 opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all" />
                     </a>
                   </div>
                 </motion.div>

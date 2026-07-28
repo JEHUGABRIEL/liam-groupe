@@ -34,6 +34,10 @@ export default function AdminMessages() {
     if (filter === "read") query = query.eq("is_read", true);
 
     const { data, error } = await query;
+    if (error) {
+      console.warn("[AdminMessages] Erreur chargement messages :", error.message);
+      setToast({ message: t("admin.contentManager.error") + " : " + error.message, type: "error" });
+    }
     if (!error) setMessages(data || []);
     setLoading(false);
   }, [filter]);

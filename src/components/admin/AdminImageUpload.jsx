@@ -2,10 +2,7 @@
 import { useState, useRef, useEffect } from "react";
 import { Upload, X, Loader2, Link, ImageOff, RefreshCw } from "lucide-react";
 import { useTranslation } from "react-i18next";
-
-const CLOUD_NAME = "dwmrzp61c";
-const UPLOAD_PRESET = "liam-groupe";
-const UPLOAD_URL = `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`;
+import { UPLOAD_PRESET, UPLOAD_URL } from "../../lib/cloudinary";
 
 export default function AdminImageUpload({ value, onChange }) {
   const { t } = useTranslation();

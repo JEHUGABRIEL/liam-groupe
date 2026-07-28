@@ -5,7 +5,7 @@ import { Send, MessageSquare, Phone, MapPin, Mail, Clock, ExternalLink } from "l
 import { useTranslation } from "react-i18next";
 import { useLangPath } from "../lib/langPath";
 import { usePathname } from "next/navigation";
-import { FacebookIcon, InstagramIcon, XIcon, YoutubeIcon } from "./SocialIcons";
+import { FacebookIcon, InstagramIcon, XIcon, YoutubeIcon, WhatsAppIcon } from "./SocialIcons";
 import { useSiteInfo, useFooterLinks } from "../hooks/useSiteData";
 import useScrollReveal from "../hooks/useScrollReveal";
 
@@ -190,27 +190,42 @@ export default function Footer({ hideCTA = false }) {
             <h4 className="font-heading font-bold mb-4">{t('footer.findUs')}</h4>
             <div className="space-y-3 text-white/60 text-sm">
               {siteInfo.address?.length > 0 && (
-                <p className="flex items-start gap-3">
+                <div className="flex items-start gap-3">
                   <MapPin className="w-4 h-4 mt-0.5 text-brand-500 shrink-0" />
-                  <span>{siteInfo.address.join(", ")}</span>
-                </p>
+                  <div>
+                    {siteInfo.address.map((line, idx) => (
+                      <p key={idx}>{line}</p>
+                    ))}
+                    <a
+                      href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(siteInfo.address.join(", "))}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1.5 text-brand-400 hover:text-brand-300 transition-colors text-xs mt-1"
+                    >
+                      <ExternalLink className="w-3 h-3" />
+                      <span>{t('footer.openInMaps')}</span>
+                    </a>
+                  </div>
+                </div>
               )}
-              {siteInfo.address?.length > 0 && (
-                <a
-                  href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(siteInfo.address.join(", "))}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-2 text-brand-400 hover:text-brand-300 transition-colors text-sm ml-7 -mt-1"
-                >
-                  <ExternalLink className="w-3.5 h-3.5" />
-                  <span>{t('footer.openInMaps')}</span>
-                </a>
-              )}
-              {siteInfo.phones?.[0] && (
-                <p className="flex items-center gap-3">
+              {siteInfo.phones?.map((phone, idx) => (
+                <p key={idx} className="flex items-center gap-3">
                   <Phone className="w-4 h-4 text-brand-500 shrink-0" />
-                  <a href={`tel:${siteInfo.phones[0].replace(/\s/g, "")}`} className="hover:text-white transition-colors">
-                    {siteInfo.phones[0]}
+                  <a href={`tel:${phone.replace(/\s/g, "")}`} className="hover:text-white transition-colors">
+                    {phone}
+                  </a>
+                </p>
+              ))}
+              {siteInfo.social?.whatsapp && (
+                <p className="flex items-center gap-3">
+                  <MessageSquare className="w-4 h-4 text-brand-500 shrink-0" />
+                  <a
+                    href={`https://wa.me/${String(siteInfo.social.whatsapp).replace(/\D/g, "")}?text=${encodeURIComponent(t("whatsapp.prefilledMessage"))}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="hover:text-white transition-colors"
+                  >
+                    {t("whatsapp.cta")}
                   </a>
                 </p>
               )}
@@ -242,6 +257,7 @@ export default function Footer({ hideCTA = false }) {
               { Icon: InstagramIcon, href: siteInfo.social?.instagram },
               { Icon: XIcon, href: siteInfo.social?.x },
               { Icon: YoutubeIcon, href: siteInfo.social?.youtube },
+              { Icon: WhatsAppIcon, href: siteInfo.social?.whatsapp ? `https://wa.me/${String(siteInfo.social.whatsapp).replace(/\D/g, "")}` : undefined },
             ].map(({ Icon, href }, i) => (
               <a
                 key={i}

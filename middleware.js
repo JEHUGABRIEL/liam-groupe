@@ -3,6 +3,20 @@ import { NextResponse } from "next/server";
 const locales = ["fr", "en"];
 const defaultLocale = "fr";
 
+if (!Array.isArray(locales) || locales.length === 0) {
+  throw new Error(
+    "[middleware] La liste des locales est vide. Vérifie la constante `locales` dans middleware.js. " +
+    "Elle doit contenir au moins une locale valide (ex: ['fr', 'en'])."
+  );
+}
+
+if (!defaultLocale || typeof defaultLocale !== "string") {
+  throw new Error(
+    "[middleware] La locale par défaut est invalide. Vérifie la constante `defaultLocale` dans middleware.js. " +
+    "Valeur actuelle : " + JSON.stringify(defaultLocale)
+  );
+}
+
 function getLocale(request) {
   const acceptLanguage = request.headers.get("accept-language");
   if (acceptLanguage) {

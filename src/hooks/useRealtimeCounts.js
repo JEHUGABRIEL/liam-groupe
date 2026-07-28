@@ -28,8 +28,8 @@ function playNotification() {
 
     osc.start(ctx.currentTime);
     osc.stop(ctx.currentTime + 0.35);
-  } catch {
-    
+  } catch (err) {
+    console.warn("[useRealtimeCounts] Notification audio impossible :", err instanceof Error ? err.message : err);
   }
 }
 

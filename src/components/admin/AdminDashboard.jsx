@@ -32,9 +32,13 @@ export default function AdminDashboard({ onNavigate }) {
     
     supabase.from("products").select("*", { count: "exact", head: true }).then(({ count }) => {
       if (count !== null) setProductCount(count);
+    }).catch((err) => {
+      console.warn("[AdminDashboard] Impossible de charger les produits :", err.message);
     });
     supabase.from("menu_items").select("*", { count: "exact", head: true }).then(({ count }) => {
       if (count !== null) setMenuItemsCount(count);
+    }).catch((err) => {
+      console.warn("[AdminDashboard] Impossible de charger les éléments de menu :", err.message);
     });
     const channel = supabase
       .channel("admin-dashboard-content")

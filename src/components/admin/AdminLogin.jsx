@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { useLangPath } from "../../lib/langPath";
 import { supabase } from "../../lib/supabase.js";
+import storage from "../../lib/storage.js";
 import { Shield, Lock, Eye, EyeOff, LogIn, Loader2, Mail, ArrowLeft } from "lucide-react";
 
 const RATE_LIMIT_MAX = 5;
@@ -13,7 +14,7 @@ const LS_LOCKED_AT = "liam-admin-locked-at";
 
 
 function checkRateLimit() {
-  const lockedAt = parseInt(localStorage.getItem(LS_LOCKED_AT) || "0", 10);
+  const lockedAt = parseInt(storage.getItem(LS_LOCKED_AT) || "0", 10);
   const now = Date.now();
 
   if (lockedAt && now - lockedAt < RATE_LIMIT_DURATION) {
@@ -22,28 +23,28 @@ function checkRateLimit() {
   }
 
   if (lockedAt) {
-    localStorage.removeItem(LS_LOCKED_AT);
-    localStorage.removeItem(LS_ATTEMPTS);
+    storage.removeItem(LS_LOCKED_AT);
+    storage.removeItem(LS_ATTEMPTS);
   }
 
   return { locked: false, remainingSeconds: 0 };
 }
 
 function recordFailedAttempt() {
-  const attempts = parseInt(localStorage.getItem(LS_ATTEMPTS) || "0", 10);
+  const attempts = parseInt(storage.getItem(LS_ATTEMPTS) || "0", 10);
   const newCount = attempts + 1;
-  localStorage.setItem(LS_ATTEMPTS, String(newCount));
+  storage.setItem(LS_ATTEMPTS, String(newCount));
 
   if (newCount >= RATE_LIMIT_MAX) {
-    localStorage.setItem(LS_LOCKED_AT, String(Date.now()));
+    storage.setItem(LS_LOCKED_AT, String(Date.now()));
   }
 
   return newCount;
 }
 
 function resetRateLimit() {
-  localStorage.removeItem(LS_ATTEMPTS);
-  localStorage.removeItem(LS_LOCKED_AT);
+  storage.removeItem(LS_ATTEMPTS);
+  storage.removeItem(LS_LOCKED_AT);
 }
 
 export default function AdminLogin({ onLogin }) {

@@ -1,11 +1,11 @@
 "use client";
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Target, Compass, MapPin, Phone, Mail, Clock, Send, Quote } from "lucide-react";
+import { Target, Compass, MapPin, Phone, Mail, Clock, Send, Quote, MessageSquare } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import SectionHeading from "../components/SectionHeading";
 import HeroSlider from "../components/HeroSlider";
-import { FacebookIcon, InstagramIcon, XIcon, YoutubeIcon } from "../components/SocialIcons";
+import { FacebookIcon, InstagramIcon, XIcon, YoutubeIcon, WhatsAppIcon } from "../components/SocialIcons";
 import ContactForm from "../components/ContactForm";
 import { useSiteInfo } from "../hooks/useSiteData";
 import { img, imgHero, imgBlur, imgSrcSet, imgSizes, team as staticTeam } from "../data/siteData";
@@ -299,6 +299,7 @@ export default function About() {
                       { Icon: InstagramIcon, href: siteInfo.social?.instagram },
                       { Icon: XIcon, href: siteInfo.social?.x },
                       { Icon: YoutubeIcon, href: siteInfo.social?.youtube },
+                      { Icon: WhatsAppIcon, href: siteInfo.social?.whatsapp ? `https://wa.me/${String(siteInfo.social.whatsapp).replace(/\D/g, "")}` : undefined },
                     ].map(({ Icon, href }, i) => (
                       <a
                         key={i}
@@ -311,6 +312,15 @@ export default function About() {
                         <Icon className="w-4 h-4" />
                       </a>
                     ))}
+                    <a
+                      href={`https://wa.me/${String(siteInfo.social?.whatsapp || "").replace(/\D/g, "")}?text=${encodeURIComponent(t("whatsapp.prefilledMessage"))}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="mt-3 inline-flex items-center gap-2 text-sm font-medium text-green-600 hover:text-green-700 transition-colors"
+                    >
+                      <MessageSquare className="w-4 h-4" />
+                      {t("whatsapp.cta")}
+                    </a>
                   </div>
                 </div>
               </div>

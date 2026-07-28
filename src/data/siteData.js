@@ -1,9 +1,6 @@
 
 
-
-const CLOUD_NAME = 'dwmrzp61c'
-const BASE_URL = `https://res.cloudinary.com/${CLOUD_NAME}/image/upload`
-
+import { BASE_URL } from "../lib/cloudinary";
 
 export const img = (seed, w = 800, h = 600, fit = 'fill', quality = 'auto') =>
   `${BASE_URL}/f_auto,q_${quality},w_${w},h_${h},c_${fit},dpr_auto/v1/liam-groupe/${seed}`

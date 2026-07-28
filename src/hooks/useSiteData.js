@@ -63,13 +63,20 @@ export function useSiteInfo() {
       const data = await fetchSetting('siteInfo', fallback)
       
       if (data) {
+        
         return {
+          ...fallback,
           ...data,
+          address: fallback.address,
+          phones: fallback.phones,
           emails: ['liamgroupe236@gmail.com'],
-          contactPage: data.contactPage ? {
-            ...data.contactPage,
+          contactPage: {
+            ...(fallback.contactPage || {}),
+            ...(data.contactPage || {}),
+            address: (fallback.contactPage || fallback).address,
+            phones: (fallback.contactPage || fallback).phones,
             emails: ['liamgroupe236@gmail.com'],
-          } : undefined,
+          },
         }
       }
       return data
