@@ -151,7 +151,20 @@ CREATE TABLE admins (
 
 CREATE INDEX idx_admins_email ON admins(email);
 
--- Row Level Security (lecture publique pour tous, écriture restreinte)
+-- Profils administrateurs (liés aux utilisateurs Supabase Auth)
+CREATE TABLE admin_profiles (
+  id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
+  name TEXT NOT NULL DEFAULT 'Admin',
+  created_at TIMESTAMPTZ DEFAULT now()
+);
+
+-- Row Level Security
+-- Principe :
+--   - SELECT : publique pour toutes les tables (lecture du site public)
+--   - INSERT : publique pour messages et registrations (formulaires publics)
+--   - INSERT / UPDATE / DELETE : authentifié uniquement pour toutes les autres tables (panneau admin)
+--   - admins : SELECT restreint aux authentifiés (ne pas exposer la liste des admins)
+
 ALTER TABLE domains ENABLE ROW LEVEL SECURITY;
 ALTER TABLE events ENABLE ROW LEVEL SECURITY;
 ALTER TABLE news ENABLE ROW LEVEL SECURITY;
@@ -162,56 +175,77 @@ ALTER TABLE messages ENABLE ROW LEVEL SECURITY;
 ALTER TABLE registrations ENABLE ROW LEVEL SECURITY;
 ALTER TABLE site_settings ENABLE ROW LEVEL SECURITY;
 ALTER TABLE admins ENABLE ROW LEVEL SECURITY;
+ALTER TABLE admin_profiles ENABLE ROW LEVEL SECURITY;
 
--- Lecture publique (pour le site public)
-CREATE POLICY "Lecture publique domains" ON domains FOR SELECT USING (true);
-CREATE POLICY "Lecture publique events" ON events FOR SELECT USING (true);
-CREATE POLICY "Lecture publique news" ON news FOR SELECT USING (true);
-CREATE POLICY "Lecture publique team" ON team FOR SELECT USING (true);
-CREATE POLICY "Lecture publique partners" ON partners FOR SELECT USING (true);
-CREATE POLICY "Lecture publique testimonials" ON testimonials FOR SELECT USING (true);
-CREATE POLICY "Lecture publique registrations" ON registrations FOR SELECT USING (true);
-CREATE POLICY "Lecture publique messages" ON messages FOR SELECT USING (true);
-CREATE POLICY "Lecture publique site_settings" ON site_settings FOR SELECT USING (true);
-CREATE POLICY "Lecture publique admins" ON admins FOR SELECT USING (true);
+-- ==============================
+-- POLITIQUES DE LECTURE PUBLIQUE
+-- ==============================
 
--- Écriture publique (pour le panneau admin — utilise la clé anon)
-CREATE POLICY "Écriture publique domains" ON domains FOR INSERT WITH CHECK (true);
-CREATE POLICY "Modification publique domains" ON domains FOR UPDATE USING (true);
-CREATE POLICY "Suppression publique domains" ON domains FOR DELETE USING (true);
+CREATE POLICY "Lecture publique" ON domains FOR SELECT USING (true);
+CREATE POLICY "Lecture publique" ON events FOR SELECT USING (true);
+CREATE POLICY "Lecture publique" ON news FOR SELECT USING (true);
+CREATE POLICY "Lecture publique" ON team FOR SELECT USING (true);
+CREATE POLICY "Lecture publique" ON partners FOR SELECT USING (true);
+CREATE POLICY "Lecture publique" ON testimonials FOR SELECT USING (true);
+CREATE POLICY "Lecture publique" ON registrations FOR SELECT USING (true);
+CREATE POLICY "Lecture publique" ON messages FOR SELECT USING (true);
+CREATE POLICY "Lecture publique" ON site_settings FOR SELECT USING (true);
 
-CREATE POLICY "Écriture publique events" ON events FOR INSERT WITH CHECK (true);
-CREATE POLICY "Modification publique events" ON events FOR UPDATE USING (true);
-CREATE POLICY "Suppression publique events" ON events FOR DELETE USING (true);
+-- La table admins n'est pas en lecture publique (ne pas exposer les admins)
+CREATE POLICY "Lecture authentifiée" ON admins FOR SELECT USING (auth.role() = 'authenticated');
+CREATE POLICY "Lecture authentifiée" ON admin_profiles FOR SELECT USING (auth.role() = 'authenticated');
 
-CREATE POLICY "Écriture publique news" ON news FOR INSERT WITH CHECK (true);
-CREATE POLICY "Modification publique news" ON news FOR UPDATE USING (true);
-CREATE POLICY "Suppression publique news" ON news FOR DELETE USING (true);
+-- ==========================================
+-- POLITIQUES D'ÉCRITURE : TABLES ADMINISTRÉES
+-- ==========================================
+-- Ces tables ne peuvent être modifiées que par un admin connecté
 
-CREATE POLICY "Écriture publique team" ON team FOR INSERT WITH CHECK (true);
-CREATE POLICY "Modification publique team" ON team FOR UPDATE USING (true);
-CREATE POLICY "Suppression publique team" ON team FOR DELETE USING (true);
+CREATE POLICY "Écriture authentifiée" ON domains FOR INSERT WITH CHECK (auth.role() = 'authenticated');
+CREATE POLICY "Modification authentifiée" ON domains FOR UPDATE USING (auth.role() = 'authenticated');
+CREATE POLICY "Suppression authentifiée" ON domains FOR DELETE USING (auth.role() = 'authenticated');
 
-CREATE POLICY "Écriture publique partners" ON partners FOR INSERT WITH CHECK (true);
-CREATE POLICY "Modification publique partners" ON partners FOR UPDATE USING (true);
-CREATE POLICY "Suppression publique partners" ON partners FOR DELETE USING (true);
+CREATE POLICY "Écriture authentifiée" ON events FOR INSERT WITH CHECK (auth.role() = 'authenticated');
+CREATE POLICY "Modification authentifiée" ON events FOR UPDATE USING (auth.role() = 'authenticated');
+CREATE POLICY "Suppression authentifiée" ON events FOR DELETE USING (auth.role() = 'authenticated');
 
-CREATE POLICY "Écriture publique testimonials" ON testimonials FOR INSERT WITH CHECK (true);
-CREATE POLICY "Modification publique testimonials" ON testimonials FOR UPDATE USING (true);
-CREATE POLICY "Suppression publique testimonials" ON testimonials FOR DELETE USING (true);
+CREATE POLICY "Écriture authentifiée" ON news FOR INSERT WITH CHECK (auth.role() = 'authenticated');
+CREATE POLICY "Modification authentifiée" ON news FOR UPDATE USING (auth.role() = 'authenticated');
+CREATE POLICY "Suppression authentifiée" ON news FOR DELETE USING (auth.role() = 'authenticated');
 
-CREATE POLICY "Écriture publique site_settings" ON site_settings FOR INSERT WITH CHECK (true);
-CREATE POLICY "Modification publique site_settings" ON site_settings FOR UPDATE USING (true);
-CREATE POLICY "Suppression publique site_settings" ON site_settings FOR DELETE USING (true);
+CREATE POLICY "Écriture authentifiée" ON team FOR INSERT WITH CHECK (auth.role() = 'authenticated');
+CREATE POLICY "Modification authentifiée" ON team FOR UPDATE USING (auth.role() = 'authenticated');
+CREATE POLICY "Suppression authentifiée" ON team FOR DELETE USING (auth.role() = 'authenticated');
 
-CREATE POLICY "Écriture publique messages" ON messages FOR INSERT WITH CHECK (true);
-CREATE POLICY "Modification publique messages" ON messages FOR UPDATE USING (true);
-CREATE POLICY "Suppression publique messages" ON messages FOR DELETE USING (true);
+CREATE POLICY "Écriture authentifiée" ON partners FOR INSERT WITH CHECK (auth.role() = 'authenticated');
+CREATE POLICY "Modification authentifiée" ON partners FOR UPDATE USING (auth.role() = 'authenticated');
+CREATE POLICY "Suppression authentifiée" ON partners FOR DELETE USING (auth.role() = 'authenticated');
 
-CREATE POLICY "Écriture publique registrations" ON registrations FOR INSERT WITH CHECK (true);
-CREATE POLICY "Modification publique registrations" ON registrations FOR UPDATE USING (true);
-CREATE POLICY "Suppression publique registrations" ON registrations FOR DELETE USING (true);
+CREATE POLICY "Écriture authentifiée" ON testimonials FOR INSERT WITH CHECK (auth.role() = 'authenticated');
+CREATE POLICY "Modification authentifiée" ON testimonials FOR UPDATE USING (auth.role() = 'authenticated');
+CREATE POLICY "Suppression authentifiée" ON testimonials FOR DELETE USING (auth.role() = 'authenticated');
 
--- Administrateurs (pour le script create-admin.js)
-CREATE POLICY "Écriture publique admins" ON admins FOR INSERT WITH CHECK (true);
-CREATE POLICY "Modification publique admins" ON admins FOR UPDATE USING (true);
+CREATE POLICY "Écriture authentifiée" ON site_settings FOR INSERT WITH CHECK (auth.role() = 'authenticated');
+CREATE POLICY "Modification authentifiée" ON site_settings FOR UPDATE USING (auth.role() = 'authenticated');
+CREATE POLICY "Suppression authentifiée" ON site_settings FOR DELETE USING (auth.role() = 'authenticated');
+
+CREATE POLICY "Écriture authentifiée" ON admins FOR INSERT WITH CHECK (auth.role() = 'authenticated');
+CREATE POLICY "Modification authentifiée" ON admins FOR UPDATE USING (auth.role() = 'authenticated');
+CREATE POLICY "Suppression authentifiée" ON admins FOR DELETE USING (auth.role() = 'authenticated');
+
+CREATE POLICY "Écriture authentifiée" ON admin_profiles FOR INSERT WITH CHECK (auth.role() = 'authenticated');
+CREATE POLICY "Modification authentifiée" ON admin_profiles FOR UPDATE USING (auth.role() = 'authenticated');
+CREATE POLICY "Suppression authentifiée" ON admin_profiles FOR DELETE USING (auth.role() = 'authenticated');
+
+-- =========================================
+-- POLITIQUES D'ÉCRITURE : FORMULAIRES PUBLICS
+-- =========================================
+-- messages et registrations acceptent les INSERT anonymes (formulaires de contact / inscription)
+-- mais les UPDATE/DELETE restent réservés aux admins
+
+CREATE POLICY "Insertion publique" ON messages FOR INSERT WITH CHECK (true);
+CREATE POLICY "Modification authentifiée" ON messages FOR UPDATE USING (auth.role() = 'authenticated');
+CREATE POLICY "Suppression authentifiée" ON messages FOR DELETE USING (auth.role() = 'authenticated');
+
+CREATE POLICY "Insertion publique" ON registrations FOR INSERT WITH CHECK (true);
+CREATE POLICY "Modification authentifiée" ON registrations FOR UPDATE USING (auth.role() = 'authenticated');
+CREATE POLICY "Suppression authentifiée" ON registrations FOR DELETE USING (auth.role() = 'authenticated');
