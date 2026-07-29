@@ -25,10 +25,10 @@ export default function NewsCard({ item }) {
             {item.title}
           </Link>
         </h3>
-        <p className="text-gray-500 mt-2 leading-relaxed flex-1">{item.excerpt}</p>
+        <p className="text-gray-500 mt-2 leading-relaxed line-clamp-3">{item.excerpt}</p>
         <Link
           to={p(`/actualites/${item.slug}`)}
-          className="mt-4 inline-flex items-center gap-1.5 text-brand-600 font-semibold hover:gap-2.5 transition-all"
+          className="mt-auto inline-flex items-center gap-1.5 text-brand-600 font-semibold hover:gap-2.5 transition-all pt-4"
         >
           {t("common.readMore")} <ArrowRight className="w-4 h-4" />
         </Link>

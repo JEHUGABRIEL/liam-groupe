@@ -28,10 +28,10 @@ export default function DomainCard({ domain }) {
         <p className="text-brand-500 text-sm font-semibold tracking-wide uppercase mt-1 mb-3">
           {t(`domains.data.${domain.slug}.category`, domain.category)}
         </p>
-        <p className="text-gray-500 leading-relaxed flex-1">{t(`domains.data.${domain.slug}.shortDescription`, domain.shortDescription)}</p>
+        <p className="text-gray-500 leading-relaxed line-clamp-3">{t(`domains.data.${domain.slug}.shortDescription`, domain.shortDescription)}</p>
         <Link
           to={p(`/domaines/${domain.slug}`)}
-          className="mt-4 inline-flex items-center gap-1.5 text-brand-600 font-semibold hover:gap-2.5 transition-all"
+          className="mt-auto inline-flex items-center gap-1.5 text-brand-600 font-semibold hover:gap-2.5 transition-all pt-4"
         >
           {t("common.discover")} <ArrowRight className="w-4 h-4" />
         </Link>

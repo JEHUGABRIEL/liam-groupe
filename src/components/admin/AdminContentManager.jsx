@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect, useCallback, useMemo, startTransition } from "react";
+import { useState, useEffect, useCallback, useMemo, memo, startTransition } from "react";
 import { useTranslation, Trans } from "react-i18next";
 import { supabase } from "../../lib/supabase.js";
 import { computeEventStatus } from "../../lib/utils.js";
@@ -12,8 +12,11 @@ import {
   ExternalLink, ArrowLeftRight,
 } from "lucide-react";
 
+// =====================================================
+// TABLE CONFIG (memoïsé — ne change que si la langue change)
+// =====================================================
 
-function getTableConfig(t) {
+function buildTableConfig(t) {
   const fl = (key) => t("admin.contentManager.fieldLabels." + key);
   const tn = (key) => t("admin.contentManager.tableNames." + key);
   const ph = (key) => t("admin.contentManager." + key + "Placeholder");
@@ -134,7 +137,6 @@ function getTableConfig(t) {
   };
 }
 
-
 const TABLE_COLS = {
   domains: ["slug", "name", "category"],
   menu_items: ["domain_slug", "category", "name", "price"],
@@ -146,16 +148,210 @@ const TABLE_COLS = {
   testimonials: ["name", "role"],
 };
 
+// =====================================================
+// Sous-composants memoïsés
+// =====================================================
+
+/** Champ de formulaire memoïsé — ne re-render que si sa valeur change */
+const FormField = memo(function FormField({ field, value, onChange }) {
+  const baseClass = "w-full border border-gray-200 rounded-xl px-4 py-2.5 outline-none focus:border-brand-400 transition-colors text-sm";
+
+  if (field.type === "image") {
+    return <AdminImageUpload value={value} onChange={(url) => onChange(field.key, url)} />;
+  }
+
+  if (field.type === "gallery") {
+    const galleryVal = Array.isArray(value) ? value : [];
+    return (
+      <AdminGalleryUpload
+        value={galleryVal}
+        onChange={(urls) => onChange(field.key, urls)}
+      />
+    );
+  }
+
+  if (field.type === "social") {
+    const social = (typeof value === "object" && value !== null) ? value : {};
+    const platforms = [
+      { key: "linkedin", label: "LinkedIn", placeholder: "https://linkedin.com/in/..." },
+      { key: "facebook", label: "Facebook", placeholder: "https://facebook.com/..." },
+      { key: "instagram", label: "Instagram", placeholder: "https://instagram.com/..." },
+      { key: "x", label: "X (Twitter)", placeholder: "https://x.com/..." },
+    ];
+    return (
+      <div className="space-y-2">
+        {platforms.map(({ key, label, placeholder }) => (
+          <div key={key} className="flex items-center gap-2">
+            <span className="text-xs font-medium text-gray-500 w-24 shrink-0">{label}</span>
+            <input
+              type="url"
+              value={social[key] || ""}
+              onChange={(e) => {
+                const updated = { ...social, [key]: e.target.value };
+                onChange(field.key, updated);
+              }}
+              placeholder={placeholder}
+              className="flex-1 border border-gray-200 rounded-xl px-3 py-2 outline-none focus:border-brand-400 transition-colors text-sm"
+            />
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  const displayVal = field.type === "json"
+    ? (typeof value === "string" ? value : JSON.stringify(value, null, 2))
+    : value;
+
+  if (field.type === "textarea") {
+    return (
+      <textarea
+        value={displayVal}
+        onChange={(e) => onChange(field.key, e.target.value)}
+        className={`${baseClass} resize-y min-h-[80px]`}
+        placeholder={field.placeholder || ""}
+        rows={3}
+      />
+    );
+  }
+  if (field.type === "select") {
+    return (
+      <select value={displayVal} onChange={(e) => onChange(field.key, e.target.value)} className={baseClass}>
+        {field.options.map((o) => <option key={o} value={o}>{o}</option>)}
+      </select>
+    );
+  }
+  if (field.type === "json") {
+    return (
+      <textarea
+        value={displayVal}
+        onChange={(e) => onChange(field.key, e.target.value)}
+        className={`${baseClass} font-mono text-xs resize-y min-h-[80px]`}
+        rows={4}
+      />
+    );
+  }
+  return (
+    <input
+      type={field.type || "text"}
+      className={baseClass}
+      value={displayVal}
+      onChange={(e) => onChange(field.key, e.target.value)}
+      placeholder={field.placeholder || ""}
+      required={field.required}
+    />
+  );
+});
+
+/** Modale de formulaire (édition/ajout) — memoïsée pour isolation des re-renders */
+const EditModal = memo(function EditModal({
+  editing, config, formValues, saving,
+  onUpdateValue, onSave, onClose,
+}) {
+  const { t } = useTranslation();
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-start justify-center pt-10 pb-10 px-4 overflow-y-auto">
+      <div className="fixed inset-0 bg-black/50" onClick={onClose} />
+      <div className="relative bg-white rounded-2xl shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+        <div className="sticky top-0 bg-white border-b border-gray-100 px-6 py-4 flex items-center justify-between rounded-t-2xl z-10">
+          <h2 className="font-heading font-bold text-lg">
+            {editing === "new"
+              ? t("admin.contentManager.newItem") + " " + config.name
+              : t("admin.contentManager.modify")}
+          </h2>
+          <button onClick={onClose} className="p-2 rounded-lg hover:bg-gray-100 text-gray-400">
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+
+        <form onSubmit={(e) => { e.preventDefault(); onSave(); }} className="p-6 space-y-4">
+          {config.fields.map((field) => (
+            <div key={field.key}>
+              <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                {field.label}
+                {field.required && <span className="text-red-400 ml-0.5">*</span>}
+              </label>
+              <FormField
+                field={field}
+                value={formValues[field.key] ?? ""}
+                onChange={onUpdateValue}
+              />
+            </div>
+          ))}
+
+          <div className="sticky bottom-0 bg-white pt-4 border-t border-gray-100 flex items-center justify-end gap-3">
+            <button
+              type="button"
+              onClick={onClose}
+              className="px-5 py-2.5 rounded-full border border-gray-200 text-sm font-medium hover:bg-gray-50 transition-colors"
+            >
+              {t("admin.contentManager.cancel")}
+            </button>
+            <button
+              type="submit"
+              disabled={saving}
+              className="px-5 py-2.5 rounded-full bg-brand-500 hover:bg-brand-600 disabled:opacity-60 text-white text-sm font-semibold inline-flex items-center gap-2 transition-colors"
+            >
+              {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+              {t("admin.contentManager.save")}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+});
+
+/** Toast de notification */
+const Toast = memo(function Toast({ toast, onDismiss }) {
+  useEffect(() => {
+    if (!toast) return;
+    const timer = setTimeout(onDismiss, 4000);
+    return () => clearTimeout(timer);
+  }, [toast, onDismiss]);
+
+  if (!toast) return null;
+
+  return (
+    <div
+      className={`fixed bottom-6 right-6 z-50 px-5 py-3 rounded-xl shadow-xl text-sm font-medium animate-fade-up ${
+        toast.type === "error" ? "bg-red-500 text-white" : "bg-green-600 text-white"
+      }`}
+    >
+      {toast.message}
+    </div>
+  );
+});
+
+// =====================================================
+// Hook : debounce
+// =====================================================
+
+function useDebounce(value, delay = 250) {
+  const [debounced, setDebounced] = useState(value);
+  useEffect(() => {
+    const id = setTimeout(() => setDebounced(value), delay);
+    return () => clearTimeout(id);
+  }, [value, delay]);
+  return debounced;
+}
+
+// =====================================================
+// Composant principal
+// =====================================================
 
 export default function AdminContentManager({ table }) {
-  const { t } = useTranslation();
-  const TABLES = getTableConfig(t);
+  const { t, i18n } = useTranslation();
+  const lang = i18n.language;
+
+  // La config des tables est recréée uniquement quand la langue change
+  const TABLES = useMemo(() => buildTableConfig(t), [lang]);
   const config = TABLES[table];
   const columns = TABLE_COLS[table] || [];
+
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(true);
-  
-  const ITEMS_PER_PAGE_OPTIONS = [10, 25, 50, Infinity];
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const [search, setSearch] = useState("");
   const [domainFilter, setDomainFilter] = useState("");
@@ -169,6 +365,12 @@ export default function AdminContentManager({ table }) {
   const [confirmClose, setConfirmClose] = useState(false);
   const [toast, setToast] = useState(null);
 
+  const debouncedSearch = useDebounce(search, 200);
+
+  // =====================================================
+  // Chargement des données
+  // =====================================================
+
   const load = useCallback(async () => {
     setLoading(true);
     const { data, error } = await supabase
@@ -177,12 +379,11 @@ export default function AdminContentManager({ table }) {
       .order("order_index", { ascending: true });
     if (!error) {
       let corrected = data || [];
-      
       if (table === "events") {
         corrected = corrected.map((evt) => {
           const correctStatus = computeEventStatus(evt.date, evt.status, evt.end_date);
           if (correctStatus !== evt.status && evt.id) {
-            supabase.from("events").update({ status: correctStatus }).eq("id", evt.id).then().catch((err) => console.error('AdminContentManager — Erreur mise à jour statut événement:', err));
+            supabase.from("events").update({ status: correctStatus }).eq("id", evt.id).then().catch(() => {});
           }
           return { ...evt, status: correctStatus };
         });
@@ -193,82 +394,55 @@ export default function AdminContentManager({ table }) {
   }, [table]);
 
   useEffect(() => {
-    startTransition(() => {
-      load();
-    });
+    startTransition(() => load());
   }, [load]);
 
-  
-  
-  const fields = useMemo(() => config.fields, [table]);
+  // =====================================================
+  // Initialisation du formulaire d'édition
+  // =====================================================
 
-  
   useEffect(() => {
-    if (editing) {
-      const vals = {};
-      const isNew = editing === "new";
-      for (const f of fields) {
-        if (f.type === "gallery") {
-          vals[f.key] = isNew ? [] : (Array.isArray(editing[f.key]) ? [...editing[f.key]] : []);
-        } else if (isNew) {
-          vals[f.key] = "";
-        } else {
-          vals[f.key] = editing[f.key] ?? "";
-        }
+    if (!editing) return;
+    const vals = {};
+    const isNew = editing === "new";
+    for (const f of config.fields) {
+      if (f.type === "gallery") {
+        vals[f.key] = isNew ? [] : (Array.isArray(editing[f.key]) ? [...editing[f.key]] : []);
+      } else if (isNew) {
+        vals[f.key] = "";
+      } else {
+        vals[f.key] = editing[f.key] ?? "";
       }
-      startTransition(() => {
-        setFormValues(vals);
-        setFormDirty(false);
-      });
     }
-  }, [editing, fields]);
-
-  
-  useEffect(() => {
     startTransition(() => {
-      setPage(0);
+      setFormValues(vals);
+      setFormDirty(false);
     });
-  }, [search, domainFilter, sortDir, itemsPerPage]);
+  }, [editing, config.fields]);
 
-  const updateFormValue = (key, value) => {
+  // Reset page quand les filtres changent
+  useEffect(() => {
+    startTransition(() => setPage(0));
+  }, [debouncedSearch, domainFilter, sortDir, itemsPerPage]);
+
+  // =====================================================
+  // Callbacks memoïsés
+  // =====================================================
+
+  const updateFormValue = useCallback((key, value) => {
     setFormValues((prev) => ({ ...prev, [key]: value }));
     setFormDirty(true);
-  };
+  }, []);
 
-  
-  const filtered = rows
-    .filter((r) => {
-      if (!search) return true;
-      const val = config.labelKey ? r[config.labelKey] : "";
-      return String(val || "").toLowerCase().includes(search.toLowerCase());
-    })
-    .filter((r) => {
-      if (!domainFilter || table !== "products") return true;
-      return r.domain === domainFilter;
-    })
-    .sort((a, b) => {
-      const va = a[config.orderField] ?? 0;
-      const vb = b[config.orderField] ?? 0;
-      return sortDir === "asc" ? va - vb : vb - va;
-    });
-
-  
-  const isAll = itemsPerPage === Infinity;
-  const totalPages = isAll ? 1 : Math.max(1, Math.ceil(filtered.length / itemsPerPage));
-  const currentPage = Math.min(page, totalPages - 1);
-  const paginated = isAll ? filtered : filtered.slice(currentPage * itemsPerPage, (currentPage + 1) * itemsPerPage);
-
-  
-  const handleSave = async () => {
+  const handleSave = useCallback(async () => {
     setSaving(true);
     const payload = { ...formValues };
-    
+
     for (const f of config.fields) {
       if (f.type === "json" && typeof payload[f.key] === "string") {
         try { payload[f.key] = JSON.parse(payload[f.key]); } catch { payload[f.key] = []; }
       }
     }
-    
     for (const f of config.fields) {
       if (f.type === "gallery" && !Array.isArray(payload[f.key])) {
         payload[f.key] = [];
@@ -291,32 +465,31 @@ export default function AdminContentManager({ table }) {
       setFormDirty(false);
       load();
     }
-  };
+  }, [formValues, config.fields, editing, rows.length, table, t, load]);
 
-  
-  useEffect(() => {
-    if (toast) {
-      const t = setTimeout(() => setToast(null), 4000);
-      return () => clearTimeout(t);
-    }
-  }, [toast]);
+  const closeModal = useCallback(() => {
+    if (formDirty) { setConfirmClose(true); return; }
+    setEditing(null);
+    setFormDirty(false);
+  }, [formDirty]);
 
-  
-  const handleToggleStatus = async (row) => {
+  const dismissToast = useCallback(() => setToast(null), []);
+
+  const handleToggleStatus = useCallback(async (row) => {
     const newStatus = row.status === "a_venir" ? "passe" : "a_venir";
     const { error } = await supabase.from(table).update({ status: newStatus }).eq("id", row.id);
     if (!error) {
-      setRows((prev) =>
-        prev.map((r) => (r.id === row.id ? { ...r, status: newStatus } : r))
-      );
-      setToast({ message: t("admin.contentManager.statusChanged", { status: t(newStatus === "a_venir" ? "admin.contentManager.upcoming" : "admin.contentManager.past") }), type: "success" });
-    } else {
-      console.error("AdminContentManager — Erreur changement de statut :", error);
+      setRows((prev) => prev.map((r) => (r.id === row.id ? { ...r, status: newStatus } : r)));
+      setToast({
+        message: t("admin.contentManager.statusChanged", {
+          status: t(newStatus === "a_venir" ? "admin.contentManager.upcoming" : "admin.contentManager.past"),
+        }),
+        type: "success",
+      });
     }
-  };
+  }, [table, t]);
 
-  
-  const handleDelete = async (id) => {
+  const handleDelete = useCallback(async (id) => {
     const { error } = await supabase.from(table).delete().eq("id", id);
     if (!error) {
       setDeleting(null);
@@ -325,114 +498,60 @@ export default function AdminContentManager({ table }) {
     } else {
       console.error("AdminContentManager — Erreur suppression :", error);
     }
-  };
+  }, [table, t, load]);
 
-  
-  const renderField = (field) => {
-    const val = formValues[field.key] ?? "";
-    const baseClass = "w-full border border-gray-200 rounded-xl px-4 py-2.5 outline-none focus:border-brand-400 transition-colors text-sm";
+  // =====================================================
+  // Filtrage, tri, pagination — memoïsés
+  // =====================================================
 
-    
-    if (field.type === "image") {
-      return <AdminImageUpload value={val} onChange={(url) => updateFormValue(field.key, url)} />;
-    }
+  const ITEMS_PER_PAGE_OPTIONS = useMemo(() => [10, 25, 50, Infinity], []);
 
-    
-    if (field.type === "gallery") {
-      const galleryVal = Array.isArray(val) ? val : [];
-      return (
-        <AdminGalleryUpload
-          value={galleryVal}
-          onChange={(urls) => updateFormValue(field.key, urls)}
-        />
-      );
-    }
+  const filtered = useMemo(() => {
+    return rows
+      .filter((r) => {
+        if (!debouncedSearch) return true;
+        const val = config.labelKey ? r[config.labelKey] : "";
+        return String(val || "").toLowerCase().includes(debouncedSearch.toLowerCase());
+      })
+      .filter((r) => {
+        if (!domainFilter || table !== "products") return true;
+        return r.domain === domainFilter;
+      })
+      .sort((a, b) => {
+        const va = a[config.orderField] ?? 0;
+        const vb = b[config.orderField] ?? 0;
+        return sortDir === "asc" ? va - vb : vb - va;
+      });
+  }, [rows, debouncedSearch, domainFilter, sortDir, config.labelKey, config.orderField, table]);
 
-    
-    if (field.type === "social") {
-      const social = (typeof val === "object" && val !== null) ? val : {};
-      const platforms = [
-        { key: "linkedin", label: "LinkedIn", placeholder: "https://linkedin.com/in/..." },
-        { key: "facebook", label: "Facebook", placeholder: "https://facebook.com/..." },
-        { key: "instagram", label: "Instagram", placeholder: "https://instagram.com/..." },
-        { key: "x", label: "X (Twitter)", placeholder: "https://x.com/..." },
-      ];
-      return (
-        <div className="space-y-2">
-          {platforms.map(({ key, label, placeholder }) => (
-            <div key={key} className="flex items-center gap-2">
-              <span className="text-xs font-medium text-gray-500 w-24 shrink-0">{label}</span>
-              <input
-                type="url"
-                value={social[key] || ""}
-                onChange={(e) => {
-                  const updated = { ...social, [key]: e.target.value };
-                  updateFormValue(field.key, updated);
-                }}
-                placeholder={placeholder}
-                className="flex-1 border border-gray-200 rounded-xl px-3 py-2 outline-none focus:border-brand-400 transition-colors text-sm"
-              />
-            </div>
-          ))}
-        </div>
-      );
-    }
+  const pagination = useMemo(() => {
+    const isAll = itemsPerPage === Infinity;
+    const totalPages = isAll ? 1 : Math.max(1, Math.ceil(filtered.length / itemsPerPage));
+    const currentPage = Math.min(page, totalPages - 1);
+    const paginated = isAll
+      ? filtered
+      : filtered.slice(currentPage * itemsPerPage, (currentPage + 1) * itemsPerPage);
+    return { isAll, totalPages, currentPage, paginated };
+  }, [filtered, itemsPerPage, page]);
 
-    const displayVal =
-      field.type === "json"
-        ? typeof val === "string" ? val : JSON.stringify(val, null, 2)
-        : val;
+  const { isAll, totalPages, currentPage, paginated } = pagination;
 
-    if (field.type === "textarea") {
-      return (
-        <textarea
-          value={displayVal}
-          onChange={(e) => updateFormValue(field.key, e.target.value)}
-          className={`${baseClass} resize-y min-h-[80px]`}
-          placeholder={field.placeholder || ""}
-          rows={3}
-        />
-      );
-    }
-    if (field.type === "select") {
-      return (
-        <select value={displayVal} onChange={(e) => updateFormValue(field.key, e.target.value)} className={baseClass}>
-          {field.options.map((o) => <option key={o} value={o}>{o}</option>)}
-        </select>
-      );
-    }
-    if (field.type === "json") {
-      return (
-        <textarea
-          value={displayVal}
-          onChange={(e) => updateFormValue(field.key, e.target.value)}
-          className={`${baseClass} font-mono text-xs resize-y min-h-[80px]`}
-          rows={4}
-        />
-      );
-    }
-    return (
-      <input
-        type={field.type || "text"}
-        className={baseClass}
-        value={displayVal}
-        onChange={(e) => updateFormValue(field.key, e.target.value)}
-        placeholder={field.placeholder || ""}
-        required={field.required}
-      />
-    );
-  };
+  // =====================================================
+  // Rendu
+  // =====================================================
 
   return (
     <div>
-      
+      {/* Header */}
       <div className="sticky top-0 z-20 bg-gray-50 pt-0 pb-3 -mx-4 sm:-mx-6 lg:-mx-10 px-4 sm:px-6 lg:px-10 border-b border-gray-100 shadow-sm">
         <div className="flex flex-wrap items-center justify-between gap-4 mb-4">
           <div>
             <h1 className="font-heading font-bold text-2xl md:text-3xl text-gray-900">
               {config.name}
             </h1>
-            <p className="text-gray-500 text-sm mt-0.5">{t("admin.contentManager.elementCount", { count: rows.length })}</p>
+            <p className="text-gray-500 text-sm mt-0.5">
+              {t("admin.contentManager.elementCount", { count: rows.length })}
+            </p>
           </div>
           <button
             onClick={() => setEditing("new")}
@@ -443,42 +562,43 @@ export default function AdminContentManager({ table }) {
           </button>
         </div>
 
-      
-      <div className="flex flex-wrap items-center gap-3">
-        <div className="relative flex-1 min-w-[160px] w-full sm:w-auto sm:max-w-xs">
-          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-          <input
-            type="text"
-            placeholder={t("admin.contentManager.search")}
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-xl outline-none focus:border-brand-400 transition-colors text-sm"
-          />
-        </div>
-        <button
-          onClick={() => setSortDir((d) => (d === "asc" ? "desc" : "asc"))}
-          className="px-4 py-2.5 border border-gray-200 rounded-xl text-sm font-medium hover:bg-gray-50 transition-colors inline-flex items-center gap-1.5"
-        >
-          <ArrowUpDown className="w-4 h-4 shrink-0" />
-          <span className="hidden sm:inline">{sortDir === "asc" ? t("admin.contentManager.orderAsc") : t("admin.contentManager.orderDesc")}</span>
-        </button>
-
-        
-        {table === "products" && (
-          <select
-            value={domainFilter}
-            onChange={(e) => setDomainFilter(e.target.value)}
-            className="px-4 py-2.5 border border-gray-200 rounded-xl text-sm outline-none focus:border-brand-400 transition-colors bg-white"
+        {/* Filtres */}
+        <div className="flex flex-wrap items-center gap-3">
+          <div className="relative flex-1 min-w-[160px] w-full sm:w-auto sm:max-w-xs">
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+            <input
+              type="text"
+              placeholder={t("admin.contentManager.search")}
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-xl outline-none focus:border-brand-400 transition-colors text-sm"
+            />
+          </div>
+          <button
+            onClick={() => setSortDir((d) => (d === "asc" ? "desc" : "asc"))}
+            className="px-4 py-2.5 border border-gray-200 rounded-xl text-sm font-medium hover:bg-gray-50 transition-colors inline-flex items-center gap-1.5"
           >
-            <option value="">{t("admin.contentManager.allDomains")}</option>
-            <option value="liam-groupe">LIAM Groupe</option>
-            <option value="g-fitness">G-Fitness</option>
-          </select>
-        )}
-      </div>
+            <ArrowUpDown className="w-4 h-4 shrink-0" />
+            <span className="hidden sm:inline">
+              {sortDir === "asc" ? t("admin.contentManager.orderAsc") : t("admin.contentManager.orderDesc")}
+            </span>
+          </button>
+
+          {table === "products" && (
+            <select
+              value={domainFilter}
+              onChange={(e) => setDomainFilter(e.target.value)}
+              className="px-4 py-2.5 border border-gray-200 rounded-xl text-sm outline-none focus:border-brand-400 transition-colors bg-white"
+            >
+              <option value="">{t("admin.contentManager.allDomains")}</option>
+              <option value="liam-groupe">LIAM Groupe</option>
+              <option value="g-fitness">G-Fitness</option>
+            </select>
+          )}
+        </div>
       </div>
 
-      
+      {/* Table */}
       {loading ? (
         <div className="flex items-center justify-center py-20">
           <Loader2 className="w-6 h-6 text-brand-500 animate-spin" />
@@ -499,7 +619,9 @@ export default function AdminContentManager({ table }) {
                       {config.fields.find((f) => f.key === col)?.label || col}
                     </th>
                   ))}
-                  <th className="sticky right-0 z-10 bg-gray-50/50 text-right px-5 py-3.5 font-semibold text-gray-600 w-24 shadow-[inset_4px_0_8px_-4px_rgba(0,0,0,0.08)]">{t("admin.contentManager.actions")}</th>
+                  <th className="sticky right-0 z-10 bg-gray-50/50 text-right px-5 py-3.5 font-semibold text-gray-600 w-24 shadow-[inset_4px_0_8px_-4px_rgba(0,0,0,0.08)]">
+                    {t("admin.contentManager.actions")}
+                  </th>
                 </tr>
               </thead>
               <tbody>
@@ -507,7 +629,7 @@ export default function AdminContentManager({ table }) {
                   <tr key={row.id} className="border-b border-gray-50 hover:bg-gray-50/50 transition-colors">
                     {columns.map((col) => (
                       <td key={col} className="px-5 py-3.5 text-gray-700 max-w-[250px] truncate">
-                        {renderCell(row, col, t)}
+                        <CellRenderer row={row} col={col} />
                       </td>
                     ))}
                     <td className="sticky right-0 z-10 bg-white text-right px-5 py-3.5 shadow-[inset_4px_0_8px_-4px_rgba(0,0,0,0.08)]">
@@ -547,12 +669,13 @@ export default function AdminContentManager({ table }) {
             </table>
           </div>
 
-          
+          {/* Pagination */}
           <div className="flex flex-col sm:flex-row items-center justify-between gap-3 mt-4 px-1">
             <div className="flex items-center gap-3">
               {!isAll && (
                 <p className="text-sm text-gray-500">
-                  {currentPage * itemsPerPage + 1}–{Math.min((currentPage + 1) * itemsPerPage, filtered.length)} / {filtered.length}
+                  {currentPage * itemsPerPage + 1}–
+                  {Math.min((currentPage + 1) * itemsPerPage, filtered.length)} / {filtered.length}
                 </p>
               )}
               <div className="flex items-center gap-1.5 text-sm text-gray-500">
@@ -569,7 +692,6 @@ export default function AdminContentManager({ table }) {
               </div>
             </div>
 
-            
             {totalPages > 1 && (
               <div className="flex items-center gap-1">
                 <button
@@ -616,88 +738,26 @@ export default function AdminContentManager({ table }) {
         </>
       )}
 
-      
-      {toast && (
-        <div
-          className={`fixed bottom-6 right-6 z-50 px-5 py-3 rounded-xl shadow-xl text-sm font-medium animate-fade-up ${
-            toast.type === "error"
-              ? "bg-red-500 text-white"
-              : "bg-green-600 text-white"
-          }`}
-        >
-          {toast.message}
-        </div>
-      )}
+      {/* Toast */}
+      <Toast toast={toast} onDismiss={dismissToast} />
 
-      
+      {/* Modale d'édition/ajout */}
       {editing && (
-        <div className="fixed inset-0 z-50 flex items-start justify-center pt-10 pb-10 px-4 overflow-y-auto">
-          <div className="fixed inset-0 bg-black/50" onClick={() => {
-            if (formDirty) { setConfirmClose(true); return; }
-            setEditing(null);
-            setFormDirty(false);
-          }} />
-          <div className="relative bg-white rounded-2xl shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-            <div className="sticky top-0 bg-white border-b border-gray-100 px-6 py-4 flex items-center justify-between rounded-t-2xl z-10">
-              <h2 className="font-heading font-bold text-lg">
-                {editing === "new" ? t("admin.contentManager.newItem") + " " + config.name : t("admin.contentManager.modify")}
-              </h2>
-              <button onClick={() => {
-                if (formDirty) { setConfirmClose(true); return; }
-                setEditing(null);
-                setFormDirty(false);
-              }} className="p-2 rounded-lg hover:bg-gray-100 text-gray-400">
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            <form
-              onSubmit={(e) => { e.preventDefault(); handleSave(); }}
-              className="p-6 space-y-4"
-            >
-              {config.fields.map((field) => (
-                <div key={field.key}>
-                  <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                    {field.label}
-                    {field.required && <span className="text-red-400 ml-0.5">*</span>}
-                  </label>
-                  {renderField(field)}
-                </div>
-              ))}
-
-              <div className="sticky bottom-0 bg-white pt-4 border-t border-gray-100 flex items-center justify-end gap-3">
-                <button
-                  type="button"
-                  onClick={() => {
-                    if (formDirty) { setConfirmClose(true); return; }
-                    setEditing(null);
-                    setFormDirty(false);
-                  }}
-                  className="px-5 py-2.5 rounded-full border border-gray-200 text-sm font-medium hover:bg-gray-50 transition-colors"
-                >
-                  {t("admin.contentManager.cancel")}
-                </button>
-                <button
-                  type="submit"
-                  disabled={saving}
-                  className="px-5 py-2.5 rounded-full bg-brand-500 hover:bg-brand-600 disabled:opacity-60 text-white text-sm font-semibold inline-flex items-center gap-2 transition-colors"
-                >
-                  {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-                  {t("admin.contentManager.save")}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
+        <EditModal
+          editing={editing}
+          config={config}
+          formValues={formValues}
+          saving={saving}
+          onUpdateValue={updateFormValue}
+          onSave={handleSave}
+          onClose={closeModal}
+        />
       )}
 
-      
+      {/* Confirmation fermeture */}
       {confirmClose && (
         <div className="fixed inset-0 z-[60] flex items-center justify-center px-4 animate-fade-in">
-          <div
-            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
-            onClick={() => setConfirmClose(false)}
-          />
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setConfirmClose(false)} />
           <div
             className="relative bg-white rounded-2xl shadow-2xl p-6 w-full max-w-sm text-center animate-scale-in"
             role="dialog"
@@ -732,13 +792,10 @@ export default function AdminContentManager({ table }) {
         </div>
       )}
 
-      
+      {/* Confirmation suppression */}
       {deleting && (
         <div className="fixed inset-0 z-50 flex items-center justify-center px-4 animate-fade-in">
-          <div
-            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
-            onClick={() => setDeleting(null)}
-          />
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setDeleting(null)} />
           <div
             className="relative bg-white rounded-2xl shadow-2xl p-6 w-full max-w-sm text-center animate-scale-in"
             role="dialog"
@@ -778,9 +835,21 @@ export default function AdminContentManager({ table }) {
   );
 }
 
-function renderCell(row, col, t) {
+// =====================================================
+// CellRenderer — pour éviter de recalculer à chaque render
+// =====================================================
+
+const CellRenderer = memo(function CellRenderer({ row, col }) {
+  // On utilise t ici car certaines cellules utilisent des traductions
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  const { t } = useTranslation();
+  return renderCellValue(row, col, t);
+});
+
+function renderCellValue(row, col, t) {
   const val = row[col];
   if (!val) return <span className="text-gray-300">—</span>;
+
   if (col === "image" || col === "logo" || col === "hero_image") {
     return (
       <a href={val} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 text-brand-600 hover:underline">

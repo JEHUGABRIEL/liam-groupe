@@ -47,10 +47,10 @@ export default function ProductCard({ product, linkTo }) {
       </div>
       <div className="p-5 flex flex-col flex-1">
         <h3 className="font-heading font-bold text-lg text-ink leading-snug">{product.name}</h3>
-        <p className="text-gray-500 text-sm leading-relaxed mt-2 flex-1 line-clamp-3">
+        <p className="text-gray-500 text-sm leading-relaxed mt-2 line-clamp-3">
           {product.description}
         </p>
-        <div className="mt-4 pt-4 border-t border-gray-100">
+        <div className="mt-auto pt-4 border-t border-gray-100">
           {linkTo ? (
             <span className="w-full inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-brand-50 text-brand-700 font-semibold text-sm group/btn">
               <ShoppingBag className="w-4 h-4 transition-transform group-hover/btn:scale-110" />

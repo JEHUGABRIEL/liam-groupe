@@ -8,7 +8,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "seed": "node scripts/seed.js"
+    "seed": "node --experimental-specifier-resolution=node scripts/seed.js"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.108.2",

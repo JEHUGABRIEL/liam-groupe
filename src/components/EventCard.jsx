@@ -78,15 +78,15 @@ export default function EventCard({ event, compact = false, onRegister, showMini
           </span>
         </div>
         <h3 className="font-heading font-bold text-lg leading-snug">{event.title}</h3>
-        <p className="text-gray-500 mt-2 leading-relaxed flex-1">{event.description}</p>
+        <p className="text-gray-500 mt-2 leading-relaxed line-clamp-3">{event.description}</p>
         {compact ? (
-          <span className="mt-4 inline-block w-fit px-3 py-1 rounded-full text-xs font-semibold bg-rose-50 text-rose-700">
+          <span className="mt-auto inline-block w-fit px-3 py-1 rounded-full text-xs font-semibold bg-rose-50 text-rose-700">
             {event.category}
           </span>
         ) : isUpcoming ? (
           <button
             onClick={() => onRegister?.(event)}
-            className="mt-5 w-full py-3 rounded-full border border-brand-100 text-brand-600 font-semibold hover:bg-brand-50 transition-colors"
+            className="mt-auto pt-4 w-full py-3 rounded-full border border-brand-100 text-brand-600 font-semibold hover:bg-brand-50 transition-colors"
           >
             {t('events.register')} →
           </button>

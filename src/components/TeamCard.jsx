@@ -29,7 +29,7 @@ export default function TeamCard({ member }) {
         <h3 className="font-heading font-bold text-lg">{member.name}</h3>
         <p className="text-brand-500 font-semibold text-sm mt-1 mb-3">{member.role}</p>
         {member.description && (
-          <p className="text-gray-500 leading-relaxed text-sm">{member.description}</p>
+          <p className="text-gray-500 leading-relaxed text-sm line-clamp-3">{member.description}</p>
         )}
         {hasSocial && (
           <div className="flex items-center gap-2.5 pt-4 mt-4 border-t border-gray-100">
