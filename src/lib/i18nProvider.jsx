@@ -10,8 +10,8 @@ export function I18nProvider({ children }) {
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
-    // Detect language from URL pathname
-    const langMatch = pathname?.match(/^\/([a-z]{2})\//);
+    // Detect language from URL pathname (match /en/page, /en, /en/...)
+    const langMatch = pathname?.match(/^\/([a-z]{2})(?:\/|$)/);
     const lang = langMatch?.[1] || "fr";
 
     if (lang !== i18n.language?.split("-")[0]) {

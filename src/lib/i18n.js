@@ -25,7 +25,8 @@ if (!i18n.isInitialized) {
       detection: {
         order: ["path", "localStorage", "navigator"],
         caches: ["localStorage"],
-        lookupFromPathIndex: 0,
+        lookupFromPathIndex: 1,
+        // lookupFromPathIndex: 1 = second segment after leading slash (/en/page → "en")
       },
     });
 }

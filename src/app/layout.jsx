@@ -44,6 +44,7 @@ export const viewport = {
 export default function RootLayout({ children }) {
   return (
     <html lang="fr" suppressHydrationWarning>
+      {/* Note: lang="fr" est le fallback. Le I18nProvider mettra à jour document.documentElement.lang côté client. */}
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
