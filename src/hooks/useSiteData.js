@@ -44,13 +44,11 @@ async function fetchSetting(key, fallback) {
   return error ? fallback : data.value
 }
 
-async function fetchAll(table, fallback, lang) {
-  const query = supabase
+async function fetchAll(table, fallback, _lang) {
+  const { data, error } = await supabase
     .from(table)
     .select('*')
     .order('order_index')
-  if (lang) query.eq('lang', lang)
-  const { data, error } = await query
   if (error || !data || data.length === 0) return fallback
   return data
 }
@@ -121,7 +119,6 @@ export function useDomain(slug) {
         .from('domains')
         .select('*')
         .eq('slug', slug)
-        .eq('lang', lang)
         .single()
       if (error) return fallback.find((d) => d.slug === slug) || null
       

@@ -155,6 +155,7 @@ export default function AdminLogin({ onLogin }) {
                 id="admin-email"
                 name="email"
                 type="email"
+                autoComplete="email"
                 value={email}
                 onChange={(e) => { setEmail(e.target.value); setError(""); }}
                 placeholder={t("admin.login.emailPlaceholder")}
@@ -174,6 +175,7 @@ export default function AdminLogin({ onLogin }) {
                 id="admin-password"
                 name="password"
                 type={show ? "text" : "password"}
+                autoComplete="current-password"
                 value={password}
                 onChange={(e) => { setPassword(e.target.value); setError(""); }}
                 placeholder={t("admin.login.passwordPlaceholder")}

@@ -90,6 +90,33 @@ CREATE TABLE testimonials (
   created_at TIMESTAMPTZ DEFAULT now()
 );
 
+-- Produits dérivés (boutique en ligne)
+CREATE TABLE products (
+  id BIGSERIAL PRIMARY KEY,
+  slug TEXT UNIQUE NOT NULL,
+  name TEXT NOT NULL,
+  description TEXT,
+  price TEXT,
+  image TEXT,
+  category TEXT,
+  domain TEXT NOT NULL DEFAULT 'liam-groupe',
+  order_index INTEGER DEFAULT 0,
+  created_at TIMESTAMPTZ DEFAULT now()
+);
+
+-- Éléments de menu (restaurant O'GAB)
+CREATE TABLE menu_items (
+  id BIGSERIAL PRIMARY KEY,
+  domain_slug TEXT NOT NULL DEFAULT 'ogab',
+  category TEXT NOT NULL,
+  name TEXT NOT NULL,
+  description TEXT,
+  price TEXT,
+  image TEXT,
+  order_index INTEGER DEFAULT 0,
+  created_at TIMESTAMPTZ DEFAULT now()
+);
+
 -- Paramètres du site (siteInfo, navLinks, footerLinks, stats, hero images)
 -- Inscriptions aux événements
 CREATE TABLE registrations (
@@ -139,6 +166,9 @@ CREATE INDEX idx_events_slug ON events(slug);
 CREATE INDEX idx_events_status ON events(status);
 CREATE INDEX idx_news_slug ON news(slug);
 CREATE INDEX idx_site_settings_key ON site_settings(key);
+CREATE INDEX idx_products_slug ON products(slug);
+CREATE INDEX idx_menu_items_domain_slug ON menu_items(domain_slug);
+CREATE INDEX idx_menu_items_category ON menu_items(category);
 
 -- Profils administrateurs (liés aux utilisateurs Supabase Auth)
 -- Chaque admin doit d'abord être créé dans Supabase Auth (Authentication > Users),
@@ -162,6 +192,8 @@ ALTER TABLE news ENABLE ROW LEVEL SECURITY;
 ALTER TABLE team ENABLE ROW LEVEL SECURITY;
 ALTER TABLE partners ENABLE ROW LEVEL SECURITY;
 ALTER TABLE testimonials ENABLE ROW LEVEL SECURITY;
+ALTER TABLE products ENABLE ROW LEVEL SECURITY;
+ALTER TABLE menu_items ENABLE ROW LEVEL SECURITY;
 ALTER TABLE messages ENABLE ROW LEVEL SECURITY;
 ALTER TABLE registrations ENABLE ROW LEVEL SECURITY;
 ALTER TABLE site_settings ENABLE ROW LEVEL SECURITY;
@@ -177,6 +209,8 @@ CREATE POLICY "Lecture publique" ON news FOR SELECT USING (true);
 CREATE POLICY "Lecture publique" ON team FOR SELECT USING (true);
 CREATE POLICY "Lecture publique" ON partners FOR SELECT USING (true);
 CREATE POLICY "Lecture publique" ON testimonials FOR SELECT USING (true);
+CREATE POLICY "Lecture publique" ON products FOR SELECT USING (true);
+CREATE POLICY "Lecture publique" ON menu_items FOR SELECT USING (true);
 CREATE POLICY "Lecture publique" ON registrations FOR SELECT USING (true);
 CREATE POLICY "Lecture publique" ON messages FOR SELECT USING (true);
 CREATE POLICY "Lecture publique" ON site_settings FOR SELECT USING (true);
@@ -212,6 +246,14 @@ CREATE POLICY "Suppression authentifiée" ON partners FOR DELETE USING (auth.rol
 CREATE POLICY "Écriture authentifiée" ON testimonials FOR INSERT WITH CHECK (auth.role() = 'authenticated');
 CREATE POLICY "Modification authentifiée" ON testimonials FOR UPDATE USING (auth.role() = 'authenticated');
 CREATE POLICY "Suppression authentifiée" ON testimonials FOR DELETE USING (auth.role() = 'authenticated');
+
+CREATE POLICY "Écriture authentifiée" ON products FOR INSERT WITH CHECK (auth.role() = 'authenticated');
+CREATE POLICY "Modification authentifiée" ON products FOR UPDATE USING (auth.role() = 'authenticated');
+CREATE POLICY "Suppression authentifiée" ON products FOR DELETE USING (auth.role() = 'authenticated');
+
+CREATE POLICY "Écriture authentifiée" ON menu_items FOR INSERT WITH CHECK (auth.role() = 'authenticated');
+CREATE POLICY "Modification authentifiée" ON menu_items FOR UPDATE USING (auth.role() = 'authenticated');
+CREATE POLICY "Suppression authentifiée" ON menu_items FOR DELETE USING (auth.role() = 'authenticated');
 
 CREATE POLICY "Écriture authentifiée" ON site_settings FOR INSERT WITH CHECK (auth.role() = 'authenticated');
 CREATE POLICY "Modification authentifiée" ON site_settings FOR UPDATE USING (auth.role() = 'authenticated');

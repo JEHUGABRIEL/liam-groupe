@@ -103,6 +103,7 @@ export default function Footer({ hideCTA = false }) {
                 id="footer-newsletter"
                 name="email"
                 type="email"
+                autoComplete="email"
                 placeholder={t('footer.newsletterPlaceholder')}
                 className="flex-1 bg-transparent px-5 py-3 text-sm placeholder:text-white/40 outline-none"
               />
