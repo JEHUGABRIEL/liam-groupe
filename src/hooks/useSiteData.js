@@ -150,10 +150,14 @@ export function useDomain(slug) {
       if (error) return fallback.find((d) => d.slug === slug) || null
 
       const local = fallback.find((d) => d.slug === slug) || {}
+      // Quand la langue est anglais, prioriser le fallback anglais pour
+      // le nom, la catégorie et la description (cohérent avec useDomains())
+      const useEn = lang === 'en'
       return {
         ...data,
-        // Quand la langue est anglais, prioriser la description du fallback
-        shortDescription: lang === 'en'
+        name: useEn ? local.name ?? data.name : data.name ?? local.name,
+        category: useEn ? local.category ?? data.category : data.category ?? local.category,
+        shortDescription: useEn
           ? local.shortDescription ?? data.short_description
           : data.short_description ?? local.shortDescription,
         heroImage: data.hero_image ?? local.heroImage,
