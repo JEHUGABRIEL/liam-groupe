@@ -335,7 +335,7 @@ export const domains = [
   },
   {
     slug: "miss-centrafrique",
-    name: "Miss Centrafrique",
+    name: "Miss Central African Republic",
     category: "EVENT & CULTURE",
     icon: "crown",
     shortDescription:

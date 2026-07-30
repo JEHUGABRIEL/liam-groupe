@@ -117,7 +117,22 @@ export function useDomains() {
   const { data: fallback, lang } = useFallback(fallbackDomainsFr, fallbackDomainsEn)
   return useQuery({
     queryKey: ['domains', lang],
-    queryFn: () => fetchAll('domains', fallback, lang),
+    queryFn: async () => {
+      const data = await fetchAll('domains', fallback, lang)
+      const domains = Array.isArray(data) ? data : fallback
+
+      // Quand la langue est anglais, superposer les noms et catégories
+      // du fallback anglais car la DB ne stocke qu'un seul jeu (français)
+      if (lang === 'en' && Array.isArray(fallback)) {
+        const fallbackMap = new Map(fallback.map((d) => [d.slug, { name: d.name, category: d.category }]))
+        return domains.map((d) => {
+          const en = fallbackMap.get(d.slug)
+          return en ? { ...d, name: en.name, category: en.category } : d
+        })
+      }
+
+      return domains
+    },
     staleTime: STALE_TIME,
   })
 }
