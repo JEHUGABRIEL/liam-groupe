@@ -90,12 +90,24 @@ export function useNavLinks() {
     queryFn: async () => {
       const data = await fetchSetting('navLinks', fallback)
       const navs = Array.isArray(data) ? data : fallback
-      const hasBoutique = navs.some((l) => l.to === '/boutique')
+
+      // Quand la langue est anglais, superposer les labels du fallback anglais
+      // car la DB ne stocke qu'un seul jeu d'étiquettes (français)
+      let result = navs
+      if (lang === 'en' && Array.isArray(fallback)) {
+        const fallbackMap = new Map(fallback.map((link) => [link.to, link.label]))
+        result = navs.map((link) => ({
+          ...link,
+          label: fallbackMap.get(link.to) || link.label,
+        }))
+      }
+
+      const hasBoutique = result.some((l) => l.to === '/boutique')
       if (!hasBoutique) {
         const boutiqueLink = { label: lang === 'en' ? 'Shop' : 'Boutique', to: '/boutique' }
-        return [...navs.slice(0, 3), boutiqueLink, ...navs.slice(3)]
+        return [...result.slice(0, 3), boutiqueLink, ...result.slice(3)]
       }
-      return navs
+      return result
     },
     staleTime: STALE_TIME,
   })
