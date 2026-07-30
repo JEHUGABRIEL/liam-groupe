@@ -121,13 +121,13 @@ export function useDomains() {
       const data = await fetchAll('domains', fallback, lang)
       const domains = Array.isArray(data) ? data : fallback
 
-      // Quand la langue est anglais, superposer les noms et catégories
-      // du fallback anglais car la DB ne stocke qu'un seul jeu (français)
+      // Quand la langue est anglais, superposer les noms, catégories et
+      // descriptions du fallback anglais car la DB ne stocke qu'un seul jeu (français)
       if (lang === 'en' && Array.isArray(fallback)) {
-        const fallbackMap = new Map(fallback.map((d) => [d.slug, { name: d.name, category: d.category }]))
+        const fallbackMap = new Map(fallback.map((d) => [d.slug, { name: d.name, category: d.category, shortDescription: d.shortDescription }]))
         return domains.map((d) => {
           const en = fallbackMap.get(d.slug)
-          return en ? { ...d, name: en.name, category: en.category } : d
+          return en ? { ...d, name: en.name, category: en.category, shortDescription: en.shortDescription } : d
         })
       }
 
@@ -148,14 +148,14 @@ export function useDomain(slug) {
         .eq('slug', slug)
         .single()
       if (error) return fallback.find((d) => d.slug === slug) || null
-      
-      
-      
-      
+
       const local = fallback.find((d) => d.slug === slug) || {}
       return {
         ...data,
-        shortDescription: data.short_description ?? local.shortDescription,
+        // Quand la langue est anglais, prioriser la description du fallback
+        shortDescription: lang === 'en'
+          ? local.shortDescription ?? data.short_description
+          : data.short_description ?? local.shortDescription,
         heroImage: data.hero_image ?? local.heroImage,
         
         
@@ -240,7 +240,28 @@ export function useFooterLinks() {
   const { data: fallback, lang } = useFallback(fallbackFooterLinksFr, fallbackFooterLinksEn)
   return useQuery({
     queryKey: ['footerLinks', lang],
-    queryFn: () => fetchSetting('footerLinks', fallback),
+    queryFn: async () => {
+      const data = await fetchSetting('footerLinks', fallback)
+      const links = data && typeof data === 'object' ? data : fallback
+
+      // Quand la langue est anglais, superposer les labels du fallback anglais
+      // pour chaque section du footer (liamGroupe, domaines, agir)
+      if (lang === 'en' && fallback && typeof fallback === 'object') {
+        const result = {}
+        for (const section of ['liamGroupe', 'domaines', 'agir']) {
+          const items = Array.isArray(links[section]) ? links[section] : []
+          const fallbackItems = Array.isArray(fallback[section]) ? fallback[section] : []
+          const fallbackMap = new Map(fallbackItems.map((item) => [item.to, item.label]))
+          result[section] = items.map((item) => ({
+            ...item,
+            label: fallbackMap.get(item.to) || item.label,
+          }))
+        }
+        return result
+      }
+
+      return links
+    },
     staleTime: STALE_TIME,
   })
 }
