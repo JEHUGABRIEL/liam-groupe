@@ -26,21 +26,34 @@ function getLocale(request) {
   return defaultLocale;
 }
 
+function getLocaleFromPathname(pathname) {
+  const match = pathname.match(/^\/([a-z]{2})(?:\/|$)/);
+  return match && locales.includes(match[1]) ? match[1] : null;
+}
+
 export function middleware(request) {
   const { pathname } = request.nextUrl;
-  const pathnameHasLocale = locales.some(
-    (locale) => pathname.startsWith(`/${locale}/`) || pathname === `/${locale}`
-  );
 
-  if (pathnameHasLocale) return;
+  // Déterminer la locale courante depuis l'URL ou le navigateur
+  const locale = getLocaleFromPathname(pathname) || getLocale(request);
 
-  // Redirect /admin and /api as-is (no locale prefix needed)
-  if (pathname.startsWith("/admin") || pathname.startsWith("/api")) return;
+  // Construire la réponse (next ou redirect) selon le chemin
+  let response;
+  if (getLocaleFromPathname(pathname) || pathname.startsWith("/admin") || pathname.startsWith("/api")) {
+    response = NextResponse.next();
+  } else {
+    const newUrl = new URL(`/${locale}${pathname === "/" ? "" : pathname}`, request.url);
+    response = NextResponse.redirect(newUrl);
+  }
 
-  // Redirect root or unknown paths to the detected/default locale
-  const locale = getLocale(request);
-  const newUrl = new URL(`/${locale}${pathname}`, request.url);
-  return NextResponse.redirect(newUrl);
+  // Toujours setter le cookie sur l'objet Response effectivement retourné
+  response.cookies.set("lang", locale, {
+    path: "/",
+    sameSite: "lax",
+    maxAge: 60 * 60 * 24 * 365, // 1 an
+  });
+
+  return response;
 }
 
 export const config = {

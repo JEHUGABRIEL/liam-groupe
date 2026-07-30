@@ -1,4 +1,5 @@
 import { Suspense } from "react";
+import { cookies } from "next/headers";
 import QueryProvider from "../lib/QueryProvider";
 import { CartProvider } from "../lib/cartContext";
 import { I18nProvider } from "../lib/i18nProvider";
@@ -41,10 +42,11 @@ export const viewport = {
   themeColor: "#0B2A4A",
 };
 
-export default function RootLayout({ children }) {
+export default async function RootLayout({ children }) {
+  const lang = (await cookies()).get("lang")?.value || "fr";
+
   return (
-    <html lang="fr" suppressHydrationWarning>
-      {/* Note: lang="fr" est le fallback. Le I18nProvider mettra à jour document.documentElement.lang côté client. */}
+    <html lang={lang} suppressHydrationWarning>
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
