@@ -17,6 +17,8 @@ export default function Products() {
     newLabel: "Nouveau produit",
     created: "Produit ajouté",
     list: { path: "/products" },
+    searchPlaceholder: "Nom, catégorie…",
+    searchKeys: ["name", "category", "slug", "description"],
     itemTitle: (p) => p.name,
     columns: [
       { key: "name", label: "Produit", render: (p) => <TitleCell image={p.image} title={p.name} subtitle={p.category} /> },
@@ -37,7 +39,7 @@ export default function Products() {
     create: (body) => api("/admin/products", { method: "POST", body }),
     update: (product, body) => api(`/admin/products/${product.id}`, { method: "PUT", body }),
     remove: (product) => api(`/admin/products/${product.id}`, { method: "DELETE" }),
-    deleteConfirm: "Supprimer le produit ?",
+    deleteConfirm: "Le produit disparaît de la boutique ; les commandes passées le conservent.",
   }), [domains.items]);
 
   return <CrudPage config={config} />;

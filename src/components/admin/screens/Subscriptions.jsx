@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import CrudPage from "@/components/admin/CrudPage";
-import { ActionButton, AdminPage, Badge, DataTable, Detail, FilterTabs, Pagination, useUrlFilter, ViewSwitch } from "@/components/admin/ui";
+import { ActionButton, AdminPage, Badge, DataTable, Detail, FilterTabs, Pagination, SearchInput, useUrlFilter, VIEW_RESETS, ViewSwitch } from "@/components/admin/ui";
 import { useResource } from "@/components/admin/useResource";
 import Modal from "@/components/ui/Modal";
 import { api } from "@/lib/client";
@@ -20,6 +20,7 @@ const PLANS = {
   newLabel: "Nouvelle formule",
   created: "Formule créée",
   list: { path: "/admin/subscription-plans" },
+  searchKeys: ["name", "description"],
   itemTitle: (p) => p.name,
   columns: [
     { key: "name", label: "Formule", render: (p) => <span className="font-medium">{p.name}{p.featured && <span className="ml-2 align-middle"><Badge tone="attente">Mise en avant</Badge></span>}</span> },
@@ -40,7 +41,7 @@ const PLANS = {
   create: (body) => api("/admin/subscription-plans", { method: "POST", body }),
   update: (plan, body) => api(`/admin/subscription-plans/${plan.id}`, { method: "PUT", body }),
   remove: (plan) => api(`/admin/subscription-plans/${plan.id}`, { method: "DELETE" }),
-  deleteConfirm: "Supprimer la formule ? Préférez la désactiver si des clients y sont abonnés.",
+  deleteConfirm: "La formule n'est plus proposée ; les abonnements existants la conservent. Pour la suspendre temporairement, désactivez-la plutôt.",
 };
 
 function SubscriptionDetail({ subscription: s, onChanged }) {
@@ -76,7 +77,7 @@ function SubscriptionDetail({ subscription: s, onChanged }) {
       )}
       {(s.status === "EN_ATTENTE" || s.status === "ACTIVE") && (
         <div className="mt-6">
-          <ActionButton action={() => api(`/admin/subscriptions/${s.id}/cancel`, { method: "POST" })} success="Abonnement annulé" onDone={onChanged} confirm="Annuler cet abonnement ?">
+          <ActionButton action={() => api(`/admin/subscriptions/${s.id}/cancel`, { method: "POST" })} success="Abonnement annulé" onDone={onChanged} confirm={{ title: `Annuler l'abonnement de ${s.subscriber?.fullName} ?`, message: "L'abonnement ne donnera plus accès à la salle. Cette action est définitive.", label: "Annuler l'abonnement" }}>
             Annuler l&apos;abonnement
           </ActionButton>
         </div>
@@ -87,7 +88,9 @@ function SubscriptionDetail({ subscription: s, onChanged }) {
 
 function SubscriptionList() {
   const [status, setStatus] = useUrlFilter();
-  const list = useResource(`/admin/subscriptions${status ? `?status=${status}` : ""}`, { paged: true });
+  const [q, setQ] = useUrlFilter("q");
+  const query = new URLSearchParams({ ...(status && { status }), ...(q && { q }) });
+  const list = useResource(`/admin/subscriptions${query.size ? `?${query}` : ""}`, { paged: true });
   const [selected, setSelected] = useState(null);
 
   const columns = [
@@ -100,9 +103,10 @@ function SubscriptionList() {
 
   return (
     <>
+      <SearchInput value={q} onChange={setQ} placeholder="Abonné, téléphone, formule…" className="mb-6 max-w-md" />
       <FilterTabs options={FILTERS} value={status} onChange={setStatus} />
       <div className="mt-6">
-        <DataTable columns={columns} resource={list} onOpen={setSelected} empty="Aucun abonnement dans cette catégorie." />
+        <DataTable columns={columns} resource={list} onOpen={setSelected} empty={q ? `Aucun abonnement pour « ${q} ».` : "Aucun abonnement dans cette catégorie."} />
         <Pagination page={list.page} totalPages={list.totalPages} totalElements={list.totalElements} onChange={list.setPage} />
       </div>
       <Modal open={Boolean(selected)} onClose={() => setSelected(null)} panneau width="max-w-[600px]" label="Abonnement" title={selected?.subscriber?.fullName}>
@@ -113,7 +117,7 @@ function SubscriptionList() {
 }
 
 export default function Subscriptions() {
-  const [view, setView] = useUrlFilter("vue", "abonnements");
+  const [view, setView] = useUrlFilter("vue", "abonnements", VIEW_RESETS);
   return (
     <AdminPage label="G-Fitness" title="Abonnements" intro="Les clients demandent un abonnement en ligne puis paient à la salle : activez-le à réception du paiement.">
       <ViewSwitch options={[["abonnements", "Abonnements"], ["formules", "Formules"]]} value={view} onChange={setView} />

@@ -2,9 +2,9 @@
 
 import { Loader2 } from "lucide-react";
 import { useState } from "react";
-import { useToast } from "@/components/admin/AdminShell";
+import { useToast } from "@/components/admin/toast";
 import CrudPage from "@/components/admin/CrudPage";
-import { AdminPage, Badge, DataTable, Detail, FilterTabs, Pagination, useUrlFilter, ViewSwitch } from "@/components/admin/ui";
+import { AdminPage, Badge, DataTable, Detail, FilterTabs, Pagination, SearchInput, useUrlFilter, VIEW_RESETS, ViewSwitch } from "@/components/admin/ui";
 import { useResource } from "@/components/admin/useResource";
 import Modal from "@/components/ui/Modal";
 import SafeImg from "@/components/ui/SafeImg";
@@ -27,6 +27,7 @@ const EDITIONS = {
   newLabel: "Nouvelle édition",
   created: "Édition créée",
   list: { path: "/admin/miss-centrafrique/editions" },
+  searchKeys: ["title", "year"],
   itemTitle: (e) => e.title,
   columns: [
     { key: "year", label: "Année", render: (e) => <span className="font-mono font-bold">{e.year}</span> },
@@ -46,7 +47,7 @@ const EDITIONS = {
   create: (body) => api("/admin/miss-centrafrique/editions", { method: "POST", body }),
   update: (edition, body) => api(`/admin/miss-centrafrique/editions/${edition.id}`, { method: "PUT", body }),
   remove: (edition) => api(`/admin/miss-centrafrique/editions/${edition.id}`, { method: "DELETE" }),
-  deleteConfirm: "Supprimer l'édition et ses candidatures ?",
+  deleteConfirm: "L'édition disparaît du site ; ses candidatures restent consultables par les candidates.",
 };
 
 function ApplicationDetail({ application: a, onChanged }) {
@@ -124,8 +125,9 @@ function ApplicationDetail({ application: a, onChanged }) {
 function Applications() {
   const [status, setStatus] = useUrlFilter();
   const [edition, setEdition] = useUrlFilter("edition");
+  const [q, setQ] = useUrlFilter("q");
   const editions = useResource("/admin/miss-centrafrique/editions");
-  const query = new URLSearchParams({ ...(status && { status }), ...(edition && { editionId: edition }) });
+  const query = new URLSearchParams({ ...(status && { status }), ...(edition && { editionId: edition }), ...(q && { q }) });
   const list = useResource(`/admin/miss-centrafrique/applications${query.size ? `?${query}` : ""}`, { paged: true });
   const [selected, setSelected] = useState(null);
 
@@ -146,6 +148,7 @@ function Applications() {
 
   return (
     <>
+      <SearchInput value={q} onChange={setQ} placeholder="Nom, ville, téléphone, e-mail…" className="mb-6 max-w-md" />
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div className="min-w-0 flex-1"><FilterTabs options={FILTERS} value={status} onChange={setStatus} /></div>
         {editions.items.length > 1 && (
@@ -156,7 +159,7 @@ function Applications() {
         )}
       </div>
       <div className="mt-6">
-        <DataTable columns={columns} resource={list} onOpen={setSelected} empty="Aucune candidature dans cette catégorie." />
+        <DataTable columns={columns} resource={list} onOpen={setSelected} empty={q ? `Aucune candidature pour « ${q} ».` : "Aucune candidature dans cette catégorie."} />
         <Pagination page={list.page} totalPages={list.totalPages} totalElements={list.totalElements} onChange={list.setPage} />
       </div>
       <Modal open={Boolean(selected)} onClose={() => setSelected(null)} panneau width="max-w-[640px]" label="Candidature" title={selected && `${selected.firstName} ${selected.lastName}`}>
@@ -167,7 +170,7 @@ function Applications() {
 }
 
 export default function Miss() {
-  const [view, setView] = useUrlFilter("vue", "candidatures");
+  const [view, setView] = useUrlFilter("vue", "candidatures", VIEW_RESETS);
   return (
     <AdminPage label="Activité" title="Miss Centrafrique" intro="Étudiez les candidatures et gérez les éditions du concours. Chaque décision est envoyée à la candidate par e-mail.">
       <ViewSwitch options={[["candidatures", "Candidatures"], ["editions", "Éditions"]]} value={view} onChange={setView} />

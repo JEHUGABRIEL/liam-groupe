@@ -56,7 +56,7 @@ function Registrations({ event, onChanged }) {
                 {r.message && <p className="mt-1 text-[0.82rem] italic text-encre/65">« {r.message} »</p>}
               </div>
               {r.status === "CONFIRMEE" && (
-                <ActionButton action={() => api(`/admin/event-registrations/${r.id}/cancel`, { method: "POST" })} success="Inscription annulée" onDone={() => { list.reload(); onChanged(); }} confirm="Annuler ?">
+                <ActionButton action={() => api(`/admin/event-registrations/${r.id}/cancel`, { method: "POST" })} success="Inscription annulée" onDone={() => { list.reload(); onChanged(); }} confirm={{ title: `Annuler l'inscription de ${r.participant?.fullName} ?`, message: "La place est libérée pour un autre participant.", label: "Annuler l'inscription" }}>
                   Annuler
                 </ActionButton>
               )}
@@ -83,11 +83,11 @@ function EventActions({ event, setItem, reload }) {
       {event.status !== "ANNULE" && (
         <div className="mt-4 flex flex-wrap gap-3">
           {event.published ? (
-            <ActionButton action={act("unpublish")} success="Événement retiré du site" onDone={done}>Retirer du site</ActionButton>
+            <ActionButton action={act("unpublish")} success="Événement retiré du site" onDone={done} confirm={{ title: "Retirer l'événement du site ?", message: "Il redevient un brouillon : il n'apparaît plus dans l'agenda et les inscriptions sont suspendues.", label: "Retirer du site", danger: false }}>Retirer du site</ActionButton>
           ) : (
             <ActionButton className="btn-sombre" action={act("publish")} success="Événement publié" onDone={done}>Publier</ActionButton>
           )}
-          <ActionButton action={act("cancel")} success="Événement annulé, inscrits prévenus" onDone={done} confirm="Les inscrits seront prévenus par e-mail.">
+          <ActionButton action={act("cancel")} success="Événement annulé, inscrits prévenus" onDone={done} confirm={{ title: `Annuler « ${event.title} » ?`, message: "Les inscrits seront prévenus par e-mail et les inscriptions fermées. Cette action est définitive.", label: "Annuler l'événement" }}>
             Annuler l&apos;événement
           </ActionButton>
         </div>
@@ -104,6 +104,7 @@ const CONFIG = {
   newLabel: "Nouvel événement",
   created: "Événement créé en brouillon",
   list: { path: "/admin/events", paged: true },
+  searchPlaceholder: "Titre, lieu, catégorie…",
   itemTitle: (e) => e.title,
   columns: [
     { key: "title", label: "Événement", render: (e) => <><span className="font-medium">{e.title}</span><span className="block text-[0.8rem] text-encre/50">{e.location}</span></> },
@@ -127,7 +128,7 @@ const CONFIG = {
   create: (body) => api("/admin/events", { method: "POST", body }),
   update: (event, body) => api(`/admin/events/${event.id}`, { method: "PUT", body }),
   remove: (event) => api(`/admin/events/${event.id}`, { method: "DELETE" }),
-  deleteConfirm: "Supprimer l'événement et ses inscriptions ?",
+  deleteConfirm: "L'événement disparaît du site. S'il est à venir, il est d'abord annulé et ses inscrits prévenus ; l'historique des inscriptions est conservé.",
   extra: (event, { reload, setItem }) => <EventActions event={event} setItem={setItem} reload={reload} />,
 };
 

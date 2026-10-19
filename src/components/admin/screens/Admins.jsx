@@ -2,7 +2,7 @@
 
 import { Loader2, Send } from "lucide-react";
 import { useState } from "react";
-import { useToast } from "@/components/admin/AdminShell";
+import { useToast } from "@/components/admin/toast";
 import { ActionButton, AdminPage, DataTable } from "@/components/admin/ui";
 import { useResource } from "@/components/admin/useResource";
 import Field from "@/components/ui/Field";
@@ -66,7 +66,7 @@ export default function Admins() {
     { key: "expiresAt", label: "Expire le", className: "whitespace-nowrap", render: (i) => dateTime(i.expiresAt) },
     {
       key: "actions", label: "", className: "text-right", render: (i) => (
-        <ActionButton action={() => api(`/admin/invitations/${i.id}`, { method: "DELETE" })} success="Invitation révoquée" onDone={invitations.reload} confirm="Révoquer le lien ?">
+        <ActionButton action={() => api(`/admin/invitations/${i.id}`, { method: "DELETE" })} success="Invitation révoquée" onDone={invitations.reload} confirm={{ title: `Révoquer l'invitation de ${i.email} ?`, message: "Le lien reçu par e-mail ne fonctionnera plus.", label: "Révoquer" }}>
           Révoquer
         </ActionButton>
       ),

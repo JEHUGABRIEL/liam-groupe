@@ -1,10 +1,11 @@
 "use client";
 
-import { ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
+import { ChevronLeft, ChevronRight, Loader2, Search } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useState } from "react";
-import { useToast } from "@/components/admin/AdminShell";
+import { useCallback, useEffect, useState } from "react";
+import { useToast } from "@/components/admin/toast";
+import ConfirmDialog from "@/components/admin/ConfirmDialog";
 import Notice from "@/components/ui/Notice";
 import { Skeleton } from "@/components/ui/PageLoader";
 import SafeImg from "@/components/ui/SafeImg";
@@ -127,14 +128,14 @@ export function DataTable({ columns, resource, onOpen, empty = "Aucun élément 
 
 /**
  * Bouton d'action qui appelle l'API, affiche un message et recharge la liste.
- * {@code confirm} : demande une confirmation en ligne (pas de fenêtre du navigateur).
+ * {@code confirm} (actions sensibles) : { title, message, label, danger } — ouvre une fenêtre de
+ * confirmation avant l'appel.
  */
 export function ActionButton({ action, success, onDone, confirm, className = "btn-contour", children }) {
   const toast = useToast();
-  const [state, setState] = useState("idle");
+  const [state, setState] = useState("idle"); // idle | confirm | loading
 
-  async function run(event) {
-    event.stopPropagation();
+  async function run() {
     setState("loading");
     try {
       const result = await action();
@@ -147,26 +148,30 @@ export function ActionButton({ action, success, onDone, confirm, className = "bt
     }
   }
 
-  if (confirm && state === "confirm") {
-    return (
-      <span className="inline-flex flex-wrap items-center gap-2" onClick={(e) => e.stopPropagation()}>
-        <span className="text-[0.85rem] text-encre/70">{confirm}</span>
-        <button type="button" onClick={run} className="btn-accent px-4 py-2.5">Confirmer</button>
-        <button type="button" onClick={() => setState("idle")} className="btn-contour px-4 py-2.5">Annuler</button>
-      </span>
-    );
-  }
-
   return (
-    <button
-      type="button"
-      disabled={state === "loading"}
-      onClick={confirm ? (e) => { e.stopPropagation(); setState("confirm"); } : run}
-      className={`${className} px-4 py-2.5`}
-    >
-      {state === "loading" && <Loader2 aria-hidden="true" className="h-4 w-4 animate-spin" />}
-      {children}
-    </button>
+    <>
+      <button
+        type="button"
+        disabled={state === "loading"}
+        onClick={(e) => { e.stopPropagation(); if (confirm) setState("confirm"); else run(); }}
+        className={`${className} px-4 py-2.5`}
+      >
+        {state === "loading" && !confirm && <Loader2 aria-hidden="true" className="h-4 w-4 animate-spin" />}
+        {children}
+      </button>
+      {confirm && (
+        <ConfirmDialog
+          open={state === "confirm" || (state === "loading" && Boolean(confirm))}
+          title={confirm.title}
+          message={confirm.message}
+          confirmLabel={confirm.label}
+          danger={confirm.danger !== false}
+          loading={state === "loading"}
+          onConfirm={run}
+          onCancel={() => setState("idle")}
+        />
+      )}
+    </>
   );
 }
 
@@ -195,19 +200,27 @@ export function StatCard({ label, value, hint, href, tone }) {
   );
 }
 
-/** Filtre lu dans l'adresse (?statut=…), pour pouvoir partager ou recharger la vue filtrée. */
-export function useUrlFilter(param = "statut", fallback = "") {
+/**
+ * Filtre lu dans l'adresse (?statut=…), pour pouvoir partager ou recharger la vue filtrée.
+ * {@code resets} : paramètres effacés quand celui-ci change (ex. changer de vue vide la recherche).
+ */
+export function useUrlFilter(param = "statut", fallback = "", resets = []) {
   const router = useRouter();
   const pathname = usePathname();
   const params = useSearchParams();
   const value = params.get(param) ?? fallback;
-  const set = (next) => {
+  const set = useCallback((next) => {
     const query = new URLSearchParams(params);
     if (next) query.set(param, next); else query.delete(param);
+    resets.forEach((key) => query.delete(key));
     router.replace(`${pathname}${query.size ? `?${query}` : ""}`, { scroll: false });
-  };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [params, param, pathname, router, resets.join()]);
   return [value, set];
 }
+
+/** Paramètres propres à une vue, effacés quand on change de vue. */
+export const VIEW_RESETS = ["q", "statut", "rubrique", "edition"];
 
 /** Bascule entre les vues d'un écran (ex. Abonnements / Formules), gardée dans l'adresse (?vue=…). */
 export function ViewSwitch({ options, value, onChange }) {
@@ -234,5 +247,42 @@ export function TitleCell({ image, title, subtitle }) {
         {subtitle && <span className="block truncate text-[0.8rem] text-encre/50">{subtitle}</span>}
       </span>
     </div>
+  );
+}
+
+/** « Éléonore » → « eleonore » : comparaison sans accents ni majuscules. */
+export function normalize(text) {
+  return String(text ?? "").normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
+}
+
+/** Filtre local des listes non paginées : un des champs {@code keys} contient la recherche. */
+export function matchesQuery(item, q, keys = ["name", "title", "slug", "category", "role", "subtitle", "email"]) {
+  if (!q) return true;
+  const needle = normalize(q.trim());
+  return keys.some((key) => normalize(item?.[key]).includes(needle));
+}
+
+/** Champ de recherche d'une liste : la valeur part dans l'adresse (?q=) après une courte pause de frappe. */
+export function SearchInput({ value, onChange, placeholder = "Rechercher…", className = "" }) {
+  const [text, setText] = useState(value);
+  const [synced, setSynced] = useState(value);
+  // Valeur changée de l'extérieur (lien de la recherche globale, retour arrière) : on la reprend.
+  if (value !== synced) {
+    setSynced(value);
+    setText(value);
+  }
+
+  useEffect(() => {
+    if (text === value) return undefined;
+    const timer = setTimeout(() => onChange(text.trim()), 300);
+    return () => clearTimeout(timer);
+  }, [text, value, onChange]);
+
+  return (
+    <label className={`relative block ${className}`}>
+      <span className="sr-only">{placeholder}</span>
+      <Search aria-hidden="true" className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-encre/40" />
+      <input type="search" className="champ py-2.5 pl-11" placeholder={placeholder} value={text} onChange={(e) => setText(e.target.value)} />
+    </label>
   );
 }

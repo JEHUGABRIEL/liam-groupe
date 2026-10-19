@@ -20,6 +20,7 @@ const CONFIG = {
   newLabel: "Nouvel article",
   created: "Article créé",
   list: { path: "/admin/news", paged: true },
+  searchPlaceholder: "Titre, auteur…",
   load: (row) => api(`/admin/news/${row.id}`),
   itemTitle: (n) => n.title,
   columns: [
@@ -42,7 +43,7 @@ const CONFIG = {
   create: (body) => api("/admin/news", { method: "POST", body }),
   update: (news, body) => api(`/admin/news/${news.id}`, { method: "PUT", body }),
   remove: (news) => api(`/admin/news/${news.id}`, { method: "DELETE" }),
-  deleteConfirm: "Supprimer l'article ?",
+  deleteConfirm: "L'article disparaît du site et son adresse redevient disponible.",
 };
 
 export default function News() {

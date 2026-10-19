@@ -1,8 +1,8 @@
 "use client";
 
-import { useToast } from "@/components/admin/AdminShell";
+import { useToast } from "@/components/admin/toast";
 import CrudPage, { ResourceForm } from "@/components/admin/CrudPage";
-import { AdminPage, TitleCell, useUrlFilter, ViewSwitch } from "@/components/admin/ui";
+import { AdminPage, TitleCell, useUrlFilter, VIEW_RESETS, ViewSwitch } from "@/components/admin/ui";
 import { useResource } from "@/components/admin/useResource";
 import Notice from "@/components/ui/Notice";
 import { Skeleton } from "@/components/ui/PageLoader";
@@ -15,6 +15,7 @@ const TEAM = {
   created: "Membre ajouté",
   intro: "Équipe présentée sur la page À propos.",
   list: { path: "/site/team" },
+  searchKeys: ["name", "role"],
   itemTitle: (m) => m.name,
   columns: [
     { key: "name", label: "Membre", render: (m) => <TitleCell image={m.image} title={m.name} subtitle={m.role} /> },
@@ -31,7 +32,7 @@ const TEAM = {
   create: (body) => api("/admin/site/team", { method: "POST", body }),
   update: (m, body) => api(`/admin/site/team/${m.id}`, { method: "PUT", body }),
   remove: (m) => api(`/admin/site/team/${m.id}`, { method: "DELETE" }),
-  deleteConfirm: "Retirer ce membre de l'équipe ?",
+  deleteConfirm: "Le membre n'apparaît plus sur la page À propos.",
 };
 
 const PARTNERS = {
@@ -39,6 +40,7 @@ const PARTNERS = {
   created: "Partenaire ajouté",
   intro: "Partenaires du carrousel « Ils avancent avec nous » (accueil et À propos).",
   list: { path: "/site/partners" },
+  searchKeys: ["name", "category", "subtitle"],
   itemTitle: (p) => p.name,
   columns: [
     { key: "name", label: "Partenaire", render: (p) => <TitleCell image={p.logo} title={p.name} subtitle={p.subtitle} /> },
@@ -58,7 +60,7 @@ const PARTNERS = {
   create: (body) => api("/admin/site/partners", { method: "POST", body }),
   update: (p, body) => api(`/admin/site/partners/${p.id}`, { method: "PUT", body }),
   remove: (p) => api(`/admin/site/partners/${p.id}`, { method: "DELETE" }),
-  deleteConfirm: "Retirer ce partenaire ?",
+  deleteConfirm: "Le partenaire n'apparaît plus dans le carrousel.",
 };
 
 const TESTIMONIALS = {
@@ -66,6 +68,7 @@ const TESTIMONIALS = {
   created: "Témoignage ajouté",
   intro: "Témoignages affichés sur l'accueil.",
   list: { path: "/site/testimonials" },
+  searchKeys: ["name", "role", "quote"],
   itemTitle: (t) => t.name,
   columns: [
     { key: "name", label: "Auteur", render: (t) => <TitleCell image={t.image} title={t.name} subtitle={t.role} /> },
@@ -81,7 +84,7 @@ const TESTIMONIALS = {
   create: (body) => api("/admin/site/testimonials", { method: "POST", body }),
   update: (t, body) => api(`/admin/site/testimonials/${t.id}`, { method: "PUT", body }),
   remove: (t) => api(`/admin/site/testimonials/${t.id}`, { method: "DELETE" }),
-  deleteConfirm: "Supprimer ce témoignage ?",
+  deleteConfirm: "Le témoignage n'apparaît plus sur l'accueil.",
 };
 
 const SITE_INFO_FIELDS = [
@@ -128,7 +131,7 @@ function SiteInfo() {
 const VIEWS = { equipe: TEAM, partenaires: PARTNERS, temoignages: TESTIMONIALS };
 
 export default function SiteContent() {
-  const [view, setView] = useUrlFilter("vue", "coordonnees");
+  const [view, setView] = useUrlFilter("vue", "coordonnees", VIEW_RESETS);
   return (
     <AdminPage label="Contenu" title="Contenu du site" intro="Coordonnées, équipe, partenaires et témoignages.">
       <ViewSwitch options={[["coordonnees", "Coordonnées"], ["equipe", "Équipe"], ["partenaires", "Partenaires"], ["temoignages", "Témoignages"]]} value={view} onChange={setView} />

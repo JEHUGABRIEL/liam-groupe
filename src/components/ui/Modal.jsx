@@ -1,12 +1,14 @@
 "use client";
 
 import { useEffect, useId, useRef } from "react";
+import { createPortal } from "react-dom";
 import { X } from "lucide-react";
 
 /**
  * Fenêtre modale accessible : fond assombri, fermeture par Échap, clic sur le fond
  * ou bouton ×, focus placé dans la fenêtre puis rendu à l'élément d'origine.
  * {@code panneau} : la fenêtre glisse du bord droit sur toute la hauteur (formulaires du back-office).
+ * Rendue dans {@code body} : ni la couleur ni l'empilement de l'élément qui l'ouvre ne s'y appliquent.
  */
 export default function Modal({ open, onClose, title, label, children, width = "max-w-[560px]", panneau = false }) {
   const panel = useRef(null);
@@ -41,8 +43,8 @@ export default function Modal({ open, onClose, title, label, children, width = "
 
   if (!open) return null;
 
-  return (
-    <div className={`fixed inset-0 z-[80] flex ${panneau ? "justify-end" : "items-end justify-center sm:items-center sm:p-6"}`}>
+  return createPortal(
+    <div className={`fixed inset-0 z-[80] flex text-encre ${panneau ? "justify-end" : "items-end justify-center sm:items-center sm:p-6"}`}>
       <button type="button" aria-label="Fermer" tabIndex={-1} className="absolute inset-0 bg-noir-doux/70" onClick={onClose} />
       <div
         ref={panel}
@@ -62,6 +64,7 @@ export default function Modal({ open, onClose, title, label, children, width = "
         </div>
         <div className="p-6 sm:p-8">{children}</div>
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }

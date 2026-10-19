@@ -51,7 +51,9 @@ L'API doit tourner (`docker compose up -d && mvn spring-boot:run` dans `liam-gro
 - **Back-office** (`src/app/admin/(bo)`, `src/components/admin`) : sans l'en-tête du site (`SiteChrome`),
   réservé aux administrateurs (`AdminShell`). Les écrans de contenu sont décrits par un schéma de champs
   (`CrudPage` + `fields.jsx`) ; les images sont envoyées à l'API (`/api/admin/media`). Les filtres et
-  onglets sont gardés dans l'adresse (`?statut=`, `?vue=`). Les pages publiques reprennent les
+  onglets sont gardés dans l'adresse (`?statut=`, `?vue=`, `?q=`). Recherche globale : Ctrl+K
+  (`AdminSearch`). Actions sensibles confirmées dans une fenêtre (`ConfirmDialog`) ; les suppressions
+  sont logiques côté API (contenu masqué, conservé en base). Les pages publiques reprennent les
   modifications sous 5 minutes (cache `revalidate`).
 
 ## Design

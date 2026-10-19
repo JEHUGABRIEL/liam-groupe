@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { ActionButton, AdminPage, Badge, DataTable, Detail, FilterTabs, Pagination, useUrlFilter } from "@/components/admin/ui";
+import { ActionButton, AdminPage, Badge, DataTable, Detail, FilterTabs, Pagination, SearchInput, useUrlFilter } from "@/components/admin/ui";
 import { useResource } from "@/components/admin/useResource";
 import Modal from "@/components/ui/Modal";
 import { api } from "@/lib/client";
@@ -75,7 +75,7 @@ function OrderDetail({ order, onChanged }) {
             </ActionButton>
           ))}
           {CAN_CANCEL.includes(order.status) && (
-            <ActionButton action={() => setStatus("ANNULEE")} success={`${order.reference} annulée`} onDone={onChanged} confirm="Le client sera prévenu par e-mail.">
+            <ActionButton action={() => setStatus("ANNULEE")} success={`${order.reference} annulée`} onDone={onChanged} confirm={{ title: `Annuler la commande ${order.reference} ?`, message: "Le client sera prévenu par e-mail. Une commande annulée ne peut plus être reprise.", label: "Annuler la commande" }}>
               Annuler la commande
             </ActionButton>
           )}
@@ -87,7 +87,9 @@ function OrderDetail({ order, onChanged }) {
 
 export default function Orders() {
   const [status, setStatus] = useUrlFilter();
-  const orders = useResource(`/admin/orders${status ? `?status=${status}` : ""}`, { paged: true });
+  const [q, setQ] = useUrlFilter("q");
+  const query = new URLSearchParams({ ...(status && { status }), ...(q && { q }) });
+  const orders = useResource(`/admin/orders${query.size ? `?${query}` : ""}`, { paged: true });
   const [selected, setSelected] = useState(null);
 
   const columns = [
@@ -102,9 +104,10 @@ export default function Orders() {
 
   return (
     <AdminPage label="Activité" title="Commandes" intro="Commandes passées depuis la carte O'GAB et la boutique. Chaque changement de statut est envoyé au client par e-mail.">
+      <SearchInput value={q} onChange={setQ} placeholder="Référence, client, téléphone…" className="mb-6 max-w-md" />
       <FilterTabs options={FILTERS} value={status} onChange={setStatus} />
       <div className="mt-6">
-        <DataTable columns={columns} resource={orders} onOpen={setSelected} empty="Aucune commande dans cette catégorie." />
+        <DataTable columns={columns} resource={orders} onOpen={setSelected} empty={q ? `Aucune commande pour « ${q} ».` : "Aucune commande dans cette catégorie."} />
         <Pagination page={orders.page} totalPages={orders.totalPages} totalElements={orders.totalElements} onChange={orders.setPage} />
       </div>
       <Modal open={Boolean(selected)} onClose={() => setSelected(null)} panneau width="max-w-[640px]" label="Commande" title={selected?.reference}>

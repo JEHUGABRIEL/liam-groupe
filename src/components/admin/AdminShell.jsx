@@ -1,12 +1,14 @@
 "use client";
 
 import {
-  CalendarDays, Crown, Dumbbell, ExternalLink, FileText, Layers, LayoutDashboard, LogOut, Menu, Newspaper,
+  CalendarDays, Crown, Dumbbell, FileText, Layers, LayoutDashboard, LogOut, Menu, Newspaper,
   ShoppingBag, Store, UserCog, X,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { createContext, useCallback, useContext, useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+import AdminSearch from "@/components/admin/AdminSearch";
+import { ToastContext } from "@/components/admin/toast";
 import { useAuth } from "@/components/providers/AuthProvider";
 import PageLoader from "@/components/ui/PageLoader";
 
@@ -26,18 +28,11 @@ export const ADMIN_NAV = [
   { href: "/admin/administrateurs", label: "Administrateurs", icon: UserCog },
 ];
 
-const ToastContext = createContext(() => {});
-
-/** Message bref en bas de l'écran après une action : toast("Commande confirmée") ou toast(message, "erreur"). */
-export function useToast() {
-  return useContext(ToastContext);
-}
-
 function isActive(pathname, href) {
   return href === "/admin" ? pathname === "/admin" : pathname.startsWith(href);
 }
 
-function Sidebar({ user, onNavigate, onLogout }) {
+function Sidebar({ user, onNavigate, onLogout, shortcut = false }) {
   const pathname = usePathname();
   return (
     <div className="flex h-full flex-col bg-noir-doux text-white">
@@ -45,6 +40,9 @@ function Sidebar({ user, onNavigate, onLogout }) {
         <img src="/images/logo-liam-blanc.png" alt="LIAM Groupe" className="h-10 w-auto" />
         <span className="t-label-sm text-white/60">Back-office</span>
       </Link>
+      <div className="border-b border-white/10 px-5 py-4">
+        <AdminSearch onNavigate={onNavigate} shortcut={shortcut} />
+      </div>
       <nav aria-label="Back-office" className="flex-1 overflow-y-auto py-4">
         {ADMIN_NAV.map((item) => item.section ? (
           <p key={item.section} className="t-label-sm mt-6 px-6 pb-2 text-[11px] text-white/35">{item.section}</p>
@@ -71,10 +69,7 @@ function Sidebar({ user, onNavigate, onLogout }) {
             <p className="truncate text-[0.78rem] text-white/50">{user.email}</p>
           </div>
         </div>
-        <div className="mt-4 flex items-center justify-between">
-          <Link href="/" className="t-label-sm inline-flex items-center gap-1.5 text-[11px] text-white/60 hover:text-white">
-            Voir le site <ExternalLink aria-hidden="true" className="h-3.5 w-3.5" />
-          </Link>
+        <div className="mt-4">
           <button type="button" onClick={onLogout} className="t-label-sm inline-flex items-center gap-1.5 text-[11px] text-white/60 hover:text-white">
             <LogOut aria-hidden="true" className="h-3.5 w-3.5" /> Déconnexion
           </button>
@@ -134,7 +129,7 @@ export default function AdminShell({ children }) {
     <ToastContext.Provider value={toast}>
       <div className="min-h-screen bg-gris-clair lg:grid lg:grid-cols-[264px_1fr]">
         <aside className="sticky top-0 hidden h-screen lg:block">
-          <Sidebar user={user} onLogout={signOut} />
+          <Sidebar user={user} onLogout={signOut} shortcut />
         </aside>
 
         {/* Barre du haut et menu sur mobile */}

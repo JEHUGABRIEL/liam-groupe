@@ -2,9 +2,9 @@
 
 import { Loader2, Plus } from "lucide-react";
 import { useState } from "react";
-import { useToast } from "@/components/admin/AdminShell";
+import { useToast } from "@/components/admin/toast";
 import { SchemaField, slugify, toForm, toRequest } from "@/components/admin/fields";
-import { ActionButton, AdminPage, DataTable, Pagination } from "@/components/admin/ui";
+import { ActionButton, AdminPage, DataTable, Pagination, SearchInput, matchesQuery, useUrlFilter } from "@/components/admin/ui";
 import { useResource } from "@/components/admin/useResource";
 import Modal from "@/components/ui/Modal";
 import Notice from "@/components/ui/Notice";
@@ -53,7 +53,7 @@ export function ResourceForm({ fields, item, onSubmit, onDelete, deleteConfirm, 
           {submitLabel}
         </button>
         {onDelete && (
-          <ActionButton action={onDelete} success="Supprimé" confirm={deleteConfirm || "Supprimer définitivement ?"} className="btn-contour text-accent hover:border-accent">
+          <ActionButton action={onDelete} success="Supprimé" confirm={deleteConfirm} className="btn-contour text-accent hover:border-accent">
             Supprimer
           </ActionButton>
         )}
@@ -73,7 +73,13 @@ export function ResourceForm({ fields, item, onSubmit, onDelete, deleteConfirm, 
  */
 export default function CrudPage({ config, filters, listPath, embedded = false }) {
   const toast = useToast();
-  const resource = useResource(listPath || config.list.path, { paged: config.list.paged, select: config.list.select });
+  const [q, setQ] = useUrlFilter("q");
+  const basePath = listPath || config.list.path;
+  // Listes paginées : recherche faite par l'API (?q=) ; listes simples : filtre local.
+  const path = config.list.paged && q ? `${basePath}${basePath.includes("?") ? "&" : "?"}q=${encodeURIComponent(q)}` : basePath;
+  const fetched = useResource(path, { paged: config.list.paged, select: config.list.select });
+  const shownItems = config.list.paged ? fetched.items : fetched.items.filter((i) => matchesQuery(i, q, config.searchKeys));
+  const resource = { ...fetched, items: shownItems, totalElements: config.list.paged ? fetched.totalElements : shownItems.length };
   const [editing, setEditing] = useState(null); // { item } ; item null = création
   const [opening, setOpening] = useState(false);
 
@@ -112,9 +118,15 @@ export default function CrudPage({ config, filters, listPath, embedded = false }
 
   return (
     <Wrapper label={config.label} title={config.title} intro={config.intro} actions={newButton}>
+      <SearchInput value={q} onChange={setQ} placeholder={config.searchPlaceholder || "Rechercher…"} className="mb-6 max-w-md" />
       {filters}
       <div className={filters ? "mt-6" : ""}>
-        <DataTable columns={config.columns} resource={resource} onOpen={opening ? undefined : open} empty={config.empty} />
+        <DataTable
+          columns={config.columns}
+          resource={resource}
+          onOpen={opening ? undefined : open}
+          empty={q ? `Aucun résultat pour « ${q} ».` : config.empty}
+        />
         <Pagination page={resource.page} totalPages={resource.totalPages} totalElements={resource.totalElements} onChange={resource.setPage} />
       </div>
 
@@ -135,7 +147,11 @@ export default function CrudPage({ config, filters, listPath, embedded = false }
               item={item && config.expand ? config.expand(item) : item}
               onSubmit={save}
               onDelete={item && config.remove ? async () => { await config.remove(item); close(); resource.reload(); } : undefined}
-              deleteConfirm={config.deleteConfirm}
+              deleteConfirm={item && {
+                title: `Supprimer « ${config.itemTitle(item)} » ?`,
+                message: config.deleteConfirm || "L'élément disparaît du site et du back-office.",
+                label: "Supprimer",
+              }}
             />
           </>
         )}

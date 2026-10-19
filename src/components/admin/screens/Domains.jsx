@@ -2,7 +2,7 @@
 
 import { useMemo } from "react";
 import CrudPage from "@/components/admin/CrudPage";
-import { AdminPage, FilterTabs, TitleCell, useUrlFilter, ViewSwitch } from "@/components/admin/ui";
+import { AdminPage, FilterTabs, TitleCell, useUrlFilter, VIEW_RESETS, ViewSwitch } from "@/components/admin/ui";
 import { useResource } from "@/components/admin/useResource";
 import { api } from "@/lib/client";
 import { formatPrice } from "@/lib/format";
@@ -79,6 +79,7 @@ const DOMAINS = {
   newLabel: "Nouveau domaine",
   created: "Domaine créé",
   list: { path: "/domains" },
+  searchPlaceholder: "Nom, catégorie…",
   load: (row) => api(`/domains/${row.slug}`),
   expand,
   prepare,
@@ -92,7 +93,7 @@ const DOMAINS = {
   create: (body) => api("/admin/domains", { method: "POST", body }),
   update: (domain, body) => api(`/admin/domains/${domain.id}`, { method: "PUT", body }),
   remove: (domain) => api(`/admin/domains/${domain.id}`, { method: "DELETE" }),
-  deleteConfirm: "Supprimer ce domaine ? Sa page disparaîtra du site.",
+  deleteConfirm: "Le domaine et sa carte disparaissent du site. Ne supprimez pas O'GAB ni G-Fitness : leurs pages en dépendent.",
 };
 
 function Menu() {
@@ -104,6 +105,8 @@ function Menu() {
     title: "Carte O'GAB",
     intro: "Plats et boissons commandables en ligne. Sans prix, le plat s'affiche « sur demande ».",
     newLabel: "Nouveau plat",
+    searchPlaceholder: "Plat, rubrique…",
+    searchKeys: ["name", "category", "description"],
     created: "Plat ajouté à la carte",
     list: {
       path: "/domains/ogab/menu",
@@ -126,7 +129,7 @@ function Menu() {
     create: (body) => api("/admin/domains/ogab/menu-items", { method: "POST", body }),
     update: (item, body) => api(`/admin/menu-items/${item.id}`, { method: "PUT", body }),
     remove: (item) => api(`/admin/menu-items/${item.id}`, { method: "DELETE" }),
-    deleteConfirm: "Retirer ce plat de la carte ?",
+    deleteConfirm: "Le plat disparaît de la carte ; les commandes passées le conservent.",
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }), [category, categories.join("|")]);
 
@@ -142,7 +145,7 @@ function Menu() {
 }
 
 export default function Domains() {
-  const [view, setView] = useUrlFilter("vue", "domaines");
+  const [view, setView] = useUrlFilter("vue", "domaines", VIEW_RESETS);
   return (
     <AdminPage label="Contenu" title="Domaines & carte" intro="Pôles d'activité, informations pratiques d'O'GAB, planning et coachs de G-Fitness, et carte du restaurant.">
       <ViewSwitch options={[["domaines", "Domaines"], ["carte", "Carte O'GAB"]]} value={view} onChange={setView} />
