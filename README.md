@@ -1,89 +1,62 @@
-# LIAM Groupe — Site web React
+# LIAM Groupe — site web
 
-Site web fidèle à la maquette fournie (organisation LIAM Groupe — Bangui,
-République Centrafricaine), développé en **React + Vite + React Router +
-Tailwind CSS**.
+Site public et espace client de LIAM Groupe (Bangui), en **Next.js 16** (App Router, JavaScript,
+Tailwind CSS 3). Tout le contenu vient de l'API Spring Boot
+[`liam-groupe-api`](https://github.com/JEHUGABRIEL/liam-groupe-api) : plus de Supabase ni de
+données en dur.
 
-## Démarrer le projet
+## Démarrer
 
 ```bash
+cp .env.example .env.local     # API_URL=http://localhost:8000
 npm install
-npm run dev
+npm run dev                    # http://localhost:3000
 ```
 
-Le site sera accessible sur `http://localhost:5173`.
+L'API doit tourner (`docker compose up -d && mvn spring-boot:run` dans `liam-groupe-api`).
 
-Pour générer une version de production :
+## Pages
 
-```bash
-npm run build
-npm run preview   # pour prévisualiser le build de production
-```
+| Route | Contenu |
+|---|---|
+| `/` | Accueil : domaines, actualités, agenda, boutique, témoignages, partenaires |
+| `/a-propos` | Histoire, vision, équipe |
+| `/ogab` | Restaurant O'GAB : infos pratiques, carte, commande en ligne |
+| `/g-fitness` | Salle G-Fitness : activités, planning, coachs, formules et abonnement |
+| `/boutique`, `/boutique/[slug]` | Produits, ajout au panier |
+| `/actualites`, `/actualites/[slug]` | Articles + agenda des événements |
+| `/evenements/[slug]` | Détail d'un événement, inscription |
+| `/miss-centrafrique` | Concours, candidature avec photos |
+| `/domaines/[slug]` | Autres domaines (entrepreneuriat, formation, communication, événementiel) |
+| `?auth=connexion` / `?auth=inscription` | Ouvre la modale de connexion / d'inscription sur n'importe quelle page (`/connexion` et `/inscription` y redirigent) |
+| `/commande` | Validation du panier (compte requis) |
+| `/mon-compte` | Profil, photo, mot de passe, commandes, abonnements, inscriptions, candidatures |
+| `/admin/invitation` | Création du compte d'un administrateur invité |
+| `/admin` | Back-office (rôle ADMIN) : tableau de bord, commandes, abonnements et formules, événements et inscrits, Miss Centrafrique, actualités, boutique, domaines et carte O'GAB, contenu du site, invitations |
 
-## Structure du projet
+## Architecture
 
-```
-src/
-  data/
-    siteData.js      # Tout le contenu du site (domaines, événements,
-                      # actualités, équipe, partenaires, témoignages…)
-    domainIcons.js    # Mapping icône <-> domaine
-  components/         # Composants réutilisables (Navbar, Footer, cartes…)
-  pages/              # Une page par route
-  App.jsx             # Déclaration des routes
-```
+- **Rendu serveur** du contenu public (`src/lib/api.js` → `getPublic`, cache `revalidate`) :
+  si l'API ne répond pas, la page s'affiche sans le bloc concerné.
+- **Le navigateur ne parle jamais à l'API directement.** Les jetons JWT sont gardés en cookies
+  `httpOnly` par les routes Next :
+  - `/api/session/{login,register,logout,invitation/*}` ouvrent ou ferment la session ;
+  - `/api/proxy/<chemin>` relaie vers `/api/<chemin>` avec le jeton, et renouvelle la session
+    automatiquement quand le jeton d'accès (15 min) a expiré.
+- `/media/*` (photos envoyées) est relayé vers l'API par une réécriture (`next.config.js`).
+- Connexion, inscription et « Nous contacter » s'ouvrent en modales (`ModalProvider`, `useModals()`).
+  `src/proxy.js` renvoie les pages réservées (`/mon-compte`, `/commande`) vers `/?auth=connexion&redirect=…`.
+- Panier (`CartProvider`) dans le `localStorage` ; les prix sont recalculés par l'API.
+- Images du contenu affichées avec `SafeImg` : un fichier introuvable laisse un fond neutre.
+- **Back-office** (`src/app/admin/(bo)`, `src/components/admin`) : sans l'en-tête du site (`SiteChrome`),
+  réservé aux administrateurs (`AdminShell`). Les écrans de contenu sont décrits par un schéma de champs
+  (`CrudPage` + `fields.jsx`) ; les images sont envoyées à l'API (`/api/admin/media`). Les filtres et
+  onglets sont gardés dans l'adresse (`?statut=`, `?vue=`). Les pages publiques reprennent les
+  modifications sous 5 minutes (cache `revalidate`).
 
-## Pages / routes
+## Design
 
-| Route                     | Page                                   |
-|----------------------------|-----------------------------------------|
-| `/`                        | Accueil                                 |
-| `/a-propos`                 | À propos (mission, équipe)             |
-| `/domaines`                 | Liste des domaines                      |
-| `/domaines/:slug`           | Détail d'un domaine (g-fitness, ogab, entrepreneuriat, formation, communication, evenementiel) |
-| `/evenements`               | Événements (filtres Tous / À venir / Passés) |
-| `/actualites`               | Actualités                             |
-| `/partenaires`              | Partenaires                            |
-| `/contact`                  | Contact                                |
-
-## Modifier le contenu
-
-Tout le texte (titres, descriptions, dates, chiffres clés, équipe,
-partenaires, témoignages…) se trouve **dans un seul fichier** :
-`src/data/siteData.js`. Modifier ce fichier suffit à mettre à jour
-l'ensemble du site sans toucher aux composants.
-
-## Images
-
-⚠️ Les visuels utilisés dans ce projet sont des **images de
-substitution** générées via `picsum.photos` (placeholder libre, sans
-copyright), car les captures d'écran fournies ne contenaient pas les
-fichiers image sources. Elles sont toutes centralisées via la fonction
-`img(seed, largeur, hauteur)` dans `src/data/siteData.js`.
-
-Pour les remplacer par les vraies photos de LIAM Groupe :
-1. Placez vos images dans `src/assets/` (ou `public/images/`).
-2. Remplacez les appels `img("seed", w, h)` correspondants par le chemin
-   de votre image (`import logo from "../assets/xxx.jpg"` puis
-   `heroImage: logo`).
-
-## Palette & typographie
-
-- Violet principal : `#9C05FA`
-- Corail / rouge CTA : `#F5323D`
-- Fond sombre (bandeaux stats / footer) : `#130025`
-- Titres : police **Baloo 2** (Google Fonts)
-- Texte courant : police **Poppins** (Google Fonts)
-
-## Notes de fidélité à la maquette
-
-- La barre de navigation est transparente (texte blanc, bouton CTA
-  corail) lorsqu'elle survole le hero plein écran, puis devient blanche
-  (texte sombre, bouton CTA violet) au scroll — comportement observé sur
-  la maquette d'origine.
-- Le menu « Domaines » ouvre un sous-menu déroulant vers les 6 pages de
-  domaine, chacune suivant le même gabarit (Objectifs → Programmes →
-  Statistiques → Galerie → Appel à l'action).
-- La page Événements reproduit le filtre à trois onglets (Tous / À
-  venir / Passés) avec bouton « S'inscrire » uniquement sur les
-  événements à venir.
+Mise en page inspirée de [kode-rca.vercel.app](https://kode-rca.vercel.app/) (en-tête à filets,
+titres Roboto Mono en capitales, accroches DM Serif Display, blocs à bordures fines, cartes photo
+qui se retournent) et sa palette chaude (bruns, beiges), avec le rouge du logo LIAM comme accent. Classes du système dans
+`src/app/globals.css`, couleurs dans `tailwind.config.js`.

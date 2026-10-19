@@ -1,4 +1,0 @@
-User-agent: *
-Allow: /
-
-Sitemap: https://liamgroupe.org/sitemap.xml

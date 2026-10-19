@@ -11,26 +11,16 @@
     "seed": "node --experimental-specifier-resolution=node scripts/seed.js"
   },
   "dependencies": {
-    "@supabase/supabase-js": "^2.108.2",
-    "@tanstack/query-async-storage-persister": "^5.101.1",
-    "@tanstack/react-query": "^5.101.1",
-    "@tanstack/react-query-persist-client": "^5.101.1",
-    "framer-motion": "^12.42.2",
-    "i18next": "^26.3.3",
-    "i18next-browser-languagedetector": "^8.2.1",
     "lucide-react": "^1.21.0",
     "next": "16.2.11",
     "react": "^19.2.6",
-    "react-dom": "^19.2.6",
-    "react-i18next": "^17.0.8",
-    "tslib": "^2.8.1"
+    "react-dom": "^19.2.6"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
     "autoprefixer": "^10.5.0",
-    "dotenv": "^17.4.2",
     "eslint": "^10.3.0",
     "globals": "^17.6.0",
     "postcss": "^8.5.15",

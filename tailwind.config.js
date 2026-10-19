@@ -1,144 +1,31 @@
-
+/**
+ * Thème : celui de kode-rca.vercel.app (bruns, beiges), avec le rouge du logo LIAM
+ * à la place de l'orange comme couleur d'accent.
+ */
 export default {
-  content: ["./src/**/*.{js,jsx}", "./src/app/**/*.{js,jsx}"],
+  content: ["./src/**/*.{js,jsx}"],
   theme: {
     extend: {
       fontFamily: {
-        heading: ["Fraunces", "ui-serif", "Georgia", "serif"],
-        body: ["Oswald", "ui-sans-serif", "sans-serif"],
-        mono: ["\"Space Mono\"", "ui-monospace", "monospace"],
+        sans: ["var(--font-sans)", "Roboto", "ui-sans-serif", "system-ui", "sans-serif"],
+        serif: ["var(--font-serif)", "DM Serif Display", "Georgia", "serif"],
+        mono: ["var(--font-mono)", "Roboto Mono", "ui-monospace", "monospace"],
       },
       colors: {
-        
-        brand: {
-          50: "#FDE8E8",
-          100: "#F8D0D0",
-          400: "#C94D4D",
-          500: "#B32020",
-          600: "#8F1A1A",
-          700: "#6B1313",
-        },
-        
-        violet: {
-          50: "#EAF1F8",
-          100: "#CFE0EF",
-          200: "#A8C8E0",
-          500: "#2E6DA4",
-          600: "#24567F",
-          700: "#1B4361",
-          900: "#0F2A3D",
-        },
-        
-        coral: {
-          50: "#FFF8E1",
-          100: "#FFECB3",
-          400: "#FFC933",
-          500: "#F4B400",
-          600: "#C98E00",
-        },
-        gold: {
-          50: "#FFF8E1",
-          100: "#FFECB3",
-          400: "#FFC933",
-          500: "#F4B400",
-          600: "#C98E00",
-        },
-        
-        green: {
-          50: "#E8F5EC",
-          100: "#C6E8D0",
-          400: "#3FA35F",
-          500: "#237A45",
-          600: "#1B5E35",
-        },
-        
-        ink: {
-          DEFAULT: "#0A0A0A",
-          900: "#000000",
-          800: "#141414",
-        },
-        rose: {
-          50: "#F1F3F5",
-          600: "#64748B",
-          700: "#475569",
-        },
+        accent: { DEFAULT: "#E3000F", vif: "#FF2A2F", sombre: "#A8000B", pale: "#FBE7E4" },
+        brun: "#5B2904",
+        encre: "#2A1A10",
+        "noir-doux": "#2A1201",
+        creme: "#F6F4DD",
+        "gris-clair": "#F3ECE0",
+        bordure: "#E6D9C7",
+        attenue: "#C9B49B",
+        "attenue-clair": "#F6F4DDCC",
+        whatsapp: "#25D366",
       },
-      boxShadow: {
-        card: "0 10px 30px -12px rgba(10,10,10,0.15)",
-        "card-hover": "0 20px 50px -16px rgba(10,10,10,0.25)",
-        "hero": "0 30px 80px rgba(179,32,32,0.15)",
-      },
-      animation: {
-        "fade-in": "fadeIn 0.6s ease-out forwards",
-        "fade-out": "fadeOut 0.3s ease-in forwards",
-        "fade-up": "fadeUp 0.6s ease-out forwards",
-        "fade-down": "fadeDown 0.6s ease-out forwards",
-        "fade-left": "fadeLeft 0.6s ease-out forwards",
-        "fade-right": "fadeRight 0.6s ease-out forwards",
-        "scale-in": "scaleIn 0.5s ease-out forwards",
-        "scale-out": "scaleOut 0.3s ease-in forwards",
-        "slide-up": "slideUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards",
-        "zoom-in": "zoomIn 0.5s ease-out forwards",
-        "blur-in": "blurIn 0.5s ease-out forwards",
-        "reveal-strong": "revealStrong 0.9s cubic-bezier(0.16, 1, 0.3, 1) forwards",
-        "scroll": "scroll 30s linear infinite",
-      },
-      keyframes: {
-        fadeIn: {
-          "0%": { opacity: "0" },
-          "100%": { opacity: "1" },
-        },
-        fadeUp: {
-          "0%": { opacity: "0", transform: "translateY(30px)" },
-          "100%": { opacity: "1", transform: "translateY(0)" },
-        },
-        fadeDown: {
-          "0%": { opacity: "0", transform: "translateY(-30px)" },
-          "100%": { opacity: "1", transform: "translateY(0)" },
-        },
-        fadeLeft: {
-          "0%": { opacity: "0", transform: "translateX(-30px)" },
-          "100%": { opacity: "1", transform: "translateX(0)" },
-        },
-        fadeRight: {
-          "0%": { opacity: "0", transform: "translateX(30px)" },
-          "100%": { opacity: "1", transform: "translateX(0)" },
-        },
-        scaleIn: {
-          "0%": { opacity: "0", transform: "scale(0.95)" },
-          "100%": { opacity: "1", transform: "scale(1)" },
-        },
-        scaleOut: {
-          "0%": { opacity: "1", transform: "scale(1)" },
-          "100%": { opacity: "0", transform: "scale(0.95)" },
-        },
-        fadeOut: {
-          "0%": { opacity: "1" },
-          "100%": { opacity: "0" },
-        },
-        slideUp: {
-          "0%": { opacity: "0", transform: "translateY(60px)" },
-          "100%": { opacity: "1", transform: "translateY(0)" },
-        },
-        zoomIn: {
-          "0%": { opacity: "0", transform: "scale(0.8)" },
-          "100%": { opacity: "1", transform: "scale(1)" },
-        },
-        blurIn: {
-          "0%": { opacity: "0", filter: "blur(10px)" },
-          "100%": { opacity: "1", filter: "blur(0)" },
-        },
-        revealStrong: {
-          "0%": { opacity: "0", transform: "translateY(45px) scale(0.92)" },
-          "100%": { opacity: "1", transform: "translateY(0) scale(1)" },
-        },
-        scroll: {
-          "0%": { transform: "translateX(0)" },
-          "100%": { transform: "translateX(-50%)" },
-        },
-      },
+      maxWidth: { site: "1280px" },
+      transitionTimingFunction: { signature: "cubic-bezier(.62,.83,.34,.93)" },
     },
   },
   plugins: [],
-}
-
+};

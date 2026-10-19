@@ -1,74 +1,52 @@
-import { Suspense } from "react";
-import { cookies } from "next/headers";
-import QueryProvider from "../lib/QueryProvider";
-import { CartProvider } from "../lib/cartContext";
-import { I18nProvider } from "../lib/i18nProvider";
-import CartDrawer from "../components/CartDrawer";
-import ChatBot from "../components/ChatBot";
-import "../index.css";
+import { DM_Serif_Display, Roboto, Roboto_Mono } from "next/font/google";
+import CartDrawer from "@/components/layout/CartDrawer";
+import Footer from "@/components/layout/Footer";
+import Header from "@/components/layout/Header";
+import SiteChrome from "@/components/layout/SiteChrome";
+import WhatsAppButton from "@/components/layout/WhatsAppButton";
+import { AuthProvider } from "@/components/providers/AuthProvider";
+import { CartProvider } from "@/components/providers/CartProvider";
+import { ModalProvider } from "@/components/providers/ModalProvider";
+import { getDomains, getSiteInfo } from "@/lib/site";
+import "./globals.css";
+
+const sans = Roboto({ subsets: ["latin"], weight: ["400", "500", "700"], variable: "--font-sans", display: "swap" });
+const serif = DM_Serif_Display({ subsets: ["latin"], weight: "400", variable: "--font-serif", display: "swap" });
+const mono = Roboto_Mono({ subsets: ["latin"], weight: ["400", "700"], variable: "--font-mono", display: "swap" });
 
 export const metadata = {
-  title: "LIAM Groupe — Révéler les talents, créer des opportunités durables",
+  metadataBase: new URL(process.env.SITE_URL || "http://localhost:3000"),
+  title: {
+    default: "LIAM Groupe — Révéler les talents, créer des opportunités durables",
+    template: "%s · LIAM Groupe",
+  },
   description:
-    "Structure pluridisciplinaire centrafricaine développant des projets culturels, sportifs, entrepreneuriaux et gastronomiques à Bangui.",
-  icons: { icon: "/favicon.png", apple: "/favicon.png" },
-  openGraph: {
-    type: "website",
-    siteName: "LIAM Groupe",
-    title: "LIAM Groupe — Révéler les talents, créer des opportunités durables",
-    description:
-      "Structure pluridisciplinaire centrafricaine développant des projets culturels, sportifs, entrepreneuriaux et gastronomiques à Bangui.",
-    images: [
-      {
-        url: "https://res.cloudinary.com/dwmrzp61c/image/upload/f_auto,q_auto,w_1200,h_630,c_fill/v1/liam-groupe/home-hero",
-        width: 1200,
-        height: 630,
-      },
-    ],
-    locale: "fr_FR",
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "LIAM Groupe — Révéler les talents, créer des opportunités durables",
-    description:
-      "Structure pluridisciplinaire centrafricaine développant des projets culturels, sportifs, entrepreneuriaux et gastronomiques à Bangui.",
-    images: [
-      "https://res.cloudinary.com/dwmrzp61c/image/upload/f_auto,q_auto,w_1200,h_630,c_fill/v1/liam-groupe/home-hero",
-    ],
-  },
-};
-
-export const viewport = {
-  themeColor: "#0B2A4A",
+    "Structure pluridisciplinaire à Bangui : restaurant O'GAB, salle G-Fitness, Miss Centrafrique, entrepreneuriat, formation et événementiel.",
+  icons: { icon: "/favicon.png" },
 };
 
 export default async function RootLayout({ children }) {
-  const lang = (await cookies()).get("lang")?.value || "fr";
+  const [siteInfo, domains] = await Promise.all([getSiteInfo(), getDomains()]);
 
   return (
-    <html lang={lang} suppressHydrationWarning>
-      <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link rel="preconnect" href="https://res.cloudinary.com" />
-        <link rel="dns-prefetch" href="https://res.cloudinary.com" />
-        <link
-          href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700;9..144,800&family=Oswald:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap"
-          rel="stylesheet"
-        />
-      </head>
-      <body className="font-body">
-        <QueryProvider>
-          <I18nProvider>
-            <CartProvider>
-              <Suspense fallback={null}>
+    <html lang="fr" data-scroll-behavior="smooth" className={`${sans.variable} ${serif.variable} ${mono.variable}`}>
+      <body>
+        <a href="#principal" className="sr-only focus:not-sr-only focus:absolute focus:left-0 focus:top-0 focus:z-[200] focus:bg-accent focus:px-5 focus:py-3 focus:font-mono focus:text-[0.8rem] focus:font-bold focus:uppercase focus:text-white">
+          Aller au contenu
+        </a>
+        <AuthProvider>
+          <CartProvider>
+            <ModalProvider siteInfo={siteInfo}>
+              <SiteChrome
+                header={<Header />}
+                footer={<Footer siteInfo={siteInfo} domains={domains} />}
+                extras={<><CartDrawer /><WhatsAppButton number={siteInfo.social?.whatsapp} /></>}
+              >
                 {children}
-              </Suspense>
-              <CartDrawer />
-              <ChatBot />
-            </CartProvider>
-          </I18nProvider>
-        </QueryProvider>
+              </SiteChrome>
+            </ModalProvider>
+          </CartProvider>
+        </AuthProvider>
       </body>
     </html>
   );
