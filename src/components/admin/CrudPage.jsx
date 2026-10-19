@@ -149,7 +149,7 @@ export default function CrudPage({ config, filters, listPath, embedded = false }
               onDelete={item && config.remove ? async () => { await config.remove(item); close(); resource.reload(); } : undefined}
               deleteConfirm={item && {
                 title: `Supprimer « ${config.itemTitle(item)} » ?`,
-                message: config.deleteConfirm || "L'élément disparaît du site et du back-office.",
+                message: `${config.deleteConfirm || "L'élément disparaît du site et du back-office."} Il reste récupérable depuis la corbeille.`,
                 label: "Supprimer",
               }}
             />

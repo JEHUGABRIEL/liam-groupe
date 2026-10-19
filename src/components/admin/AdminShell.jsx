@@ -2,7 +2,7 @@
 
 import {
   CalendarDays, Crown, Dumbbell, FileText, Layers, LayoutDashboard, LogOut, Menu, Newspaper,
-  ShoppingBag, Store, UserCog, X,
+  ShoppingBag, Store, Trash2, UserCog, X,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -24,6 +24,7 @@ export const ADMIN_NAV = [
   { href: "/admin/boutique", label: "Boutique", icon: Store },
   { href: "/admin/domaines", label: "Domaines & carte", icon: Layers },
   { href: "/admin/contenu", label: "Contenu du site", icon: FileText },
+  { href: "/admin/corbeille", label: "Corbeille", icon: Trash2 },
   { section: "Équipe" },
   { href: "/admin/administrateurs", label: "Administrateurs", icon: UserCog },
 ];

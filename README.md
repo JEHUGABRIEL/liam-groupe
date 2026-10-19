@@ -53,7 +53,8 @@ L'API doit tourner (`docker compose up -d && mvn spring-boot:run` dans `liam-gro
   (`CrudPage` + `fields.jsx`) ; les images sont envoyées à l'API (`/api/admin/media`). Les filtres et
   onglets sont gardés dans l'adresse (`?statut=`, `?vue=`, `?q=`). Recherche globale : Ctrl+K
   (`AdminSearch`). Actions sensibles confirmées dans une fenêtre (`ConfirmDialog`) ; les suppressions
-  sont logiques côté API (contenu masqué, conservé en base). Les pages publiques reprennent les
+  sont logiques côté API (contenu masqué, conservé en base) et réversibles depuis la corbeille
+  (`/admin/corbeille`). Les pages publiques reprennent les
   modifications sous 5 minutes (cache `revalidate`).
 
 ## Design
